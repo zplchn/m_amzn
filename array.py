@@ -594,6 +594,27 @@ class Solution:
                 return False
         return True
 
+    def findMissingRanges(self, nums: List[int], lower: int, upper: int) -> List[str]:
+        def summary(l, r):
+            l, r = l + 1, r - 1
+            if l == r:
+                return str(l)
+            elif l < r:
+                return str(l) + '->' + str(r)
+            else:
+                return None
+
+        res = []
+        if not nums:
+            res.append(summary(lower - 1, upper + 1))
+        else:
+            res.append(summary(lower - 1, nums[0]))
+            for i in range(1, len(nums)):
+                res.append(summary(nums[i-1], nums[i]))
+            res.append(summary(nums[-1], upper + 1))
+        return list(filter(lambda x : x is not None, res))
+
+
 
 
 

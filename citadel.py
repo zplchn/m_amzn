@@ -1,5 +1,5 @@
 from typing import List
-import collections
+import collections, heapq
 
 
 class ListNode:
@@ -323,6 +323,17 @@ class Solution:
             else:
                 j += 1
         return res
+
+    def topKFrequent(self, words: List[str], k: int) -> List[str]:
+        res = []
+        if not words or k < 1:
+            return res
+        c = collections.Counter(words)
+        # Counter most_common(n) return from biggest v. but when v is same, k is random order. So need to put in heap
+        # to sort
+        heap = [(-v, k) for k, v in c.items()]
+        heapq.heapify(heap)
+        return [heapq.heappop(heap)[1] for _ in range(k)]
 
 
 

@@ -2,10 +2,12 @@ import collections
 import heapq
 from typing import List
 
+
 class ListNode:
     def __init__(self, val):
         self.val = val
         self.next = None
+
 
 class Solution:
     def topKFrequentWords(self, words, k):
@@ -33,5 +35,11 @@ class Solution:
             if node.next:
                 heapq.heappush(heap, node.next)
         return dummy.next
+
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+        if not nums or k < 1:
+            return []
+        c = collections.Counter(nums)
+        return [k for k, _ in c.most_common(k)]
 
 
