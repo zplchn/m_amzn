@@ -21,11 +21,53 @@ class NNode:
 
 
 class Node:
-    def __def__(self, val, left, right, next):
+    def __def__(self, val, left, right, next=None, parent=None):
         self.val = val
         self.left = left
         self.right = right
         self.next = next
+        self.parent = parent
+
+
+class Codec:
+
+    def serialize(self, root):
+        """Encodes a tree to a single string.
+
+        :type root: TreeNode
+        :rtype: str
+        """
+        def dfs(root):
+            if not root:
+                res.append('#')
+                return
+            res.append(str(root.val))
+            dfs(root.left)
+            dfs(root.right)
+
+        res = []
+        dfs(root)
+        return ','.join(res)
+
+    def deserialize(self, data):
+        """Decodes your encoded data to tree.
+
+        :type data: str
+        :rtype: TreeNode
+        """
+        def dfs():
+            x = q.popleft()
+            if x == '#':
+                return None
+            root = TreeNode(int(x))
+            root.left = dfs()
+            root.right = dfs()
+            return root
+
+        if not data:
+            return None
+        q = collections.deque(data.split(','))
+        return dfs()
 
 
 class Solution:
@@ -124,7 +166,7 @@ class Solution:
             return False
         return self.isFullTree(root.left) and self.isFullTree(root.right)
 
-    def pathSum(self, root, sum):
+    def pathSum1(self, root, sum):
         def dfs(root, combi, res, sum):
             if not root:
                 return
@@ -531,6 +573,239 @@ class Solution:
         if ll == lr:
             return 2 ** ll - 1
         return 1 + self.countNodes(root.left) + self.countNodes(root.right)
+
+    def inorderSuccessor(self, root: 'TreeNode', p: 'TreeNode') -> 'TreeNode':
+        if not root or not p:
+            return None
+        res = None # this can be the last left (parent) or next left (child)
+        while root:
+            if root.val > p.val:
+                res = root
+                root = root.left
+            else:
+                root = root.right
+        return res
+
+    def inorderSuccessor2(self, node: 'Node') -> 'Node':
+        if not node:
+            return node
+        # two cases: if node has right child, it's the right child's last left child
+        # otherwise, it's the first parent where the cur is a left child
+        if node.right:
+            node = node.right
+            while node and node.left:
+                node = node.left
+            return node
+        else:
+            while node.parent:
+                if node.parent.left == node:
+                    return node.parent
+                node = node.parent
+            return None # the right most node
+
+    def averageOfLevels(self, root: TreeNode) -> List[float]:
+        res = []
+        if not root:
+            return res
+        q = collections.deque([root])
+        cntc, cntn, sum, cntcc = 1, 0, 0, 1
+        while q:
+            node = q.popleft()
+            sum += node.val
+            cntc -= 1
+            if node.left:
+                cntn += 1
+                q.append(node.left)
+            if node.right:
+                cntn += 1
+                q.append(node.right)
+            if cntc == 0:
+                res.append(sum / cntcc)
+                cntc = cntcc = cntn
+                cntn = 0
+                sum = 0
+        return res
+
+    def isCousins(self, root: TreeNode, x: int, y: int) -> bool:
+        def dfs(root, parent, depth):
+            if not root:
+                return
+            hm[root.val] = (parent, depth)
+            dfs(root.left, root, depth + 1)
+            dfs(root.right, root, depth + 1)
+
+        if not root:
+            return False
+        hm = {}
+        dfs(root, None, 0)
+        vx, vy = hm[x], hm[y]
+        return vx[1] == vy[1] and vx[0] != vy[0]
+
+    def isSubtree(self, s: TreeNode, t: TreeNode) -> bool:
+        def is_same(rs, rt):
+            if not rs:
+                return not rt
+            if not rt:
+                return False
+            return rs.val == rt.val and is_same(rs.left, rt.left) and is_same(rs.right, rt.right)
+
+        if not s or not t:
+            return False
+        return is_same(s, t) or self.isSubtree(s.left, t) or self.isSubtree(s.right, t)
+
+    def mergeTrees(self, t1: TreeNode, t2: TreeNode) -> TreeNode:
+        if not t1:
+            return t2
+        if not t2:
+            return t1 # for only one of them exist, just move the root is enough.
+
+        t1.val += t2.val
+        t1.left = self.mergeTrees(t1.left, t2.left)
+        t1.right = self.mergeTrees(t1.right, t2.right)
+        return t1
+
+    def pathSum(self, root: TreeNode, sum: int) -> int:
+        # start from every node and do dfs, as and must take the current one. Then count an overall couner.
+        def dfs(root, sum):
+            if not root:
+                return 0
+            return (1 if sum == root.val else 0) + dfs(root.left, sum - root.val) + dfs(root.right, sum - root.val)
+
+        if not root:
+            return 0
+        return dfs(root, sum) + self.pathSum(root.left, sum) + self.pathSum(root.right, sum)
+
+    def tree2str(self, t: TreeNode) -> str:
+        if not t:
+            return ''
+        res = str(t.val)
+        if not t.left and not t.right:
+            return res
+        res += '(' + self.tree2str(t.left) + ')'
+        if t.right:
+            res += '(' + self.tree2str(t.right) + ')'
+        return res
+
+    def minDepth(self, root: TreeNode) -> int:
+        if not root:
+            return 0
+        if not root.left:
+            return self.minDepth(root.right) + 1 # dont forget + 1 here
+        if not root.right:
+            return self.minDepth(root.left) + 1
+        return 1 + min(self.minDepth(root.right), self.minDepth(root.left))
+
+    def longestConsecutive(self, root: TreeNode) -> int:
+        def dfs(root, parent, lmax):
+            nonlocal maxv
+            if not root:
+                return
+            if parent and parent.val + 1 == root.val:
+                lmax += 1
+                maxv = max(maxv, lmax)
+            else:
+                lmax = 1
+            dfs(root.left, root, lmax)
+            dfs(root.right, root, lmax)
+
+        if not root:
+            return 0
+        maxv = 1
+        dfs(root, None, 0)
+        return maxv
+
+    def closestValue(self, root: TreeNode, target: float) -> int:
+        if not root:
+            return 0
+        minv = float('inf')
+        res = root.val
+        while root:
+            delta = abs(root.val - target)
+            if delta < minv:
+                res = root.val
+                minv = delta
+            if target > root.val:
+                root = root.right
+            else:
+                root = root.left
+        return res
+
+    # def preorderTraversal(self, root: TreeNode) -> List[int]:
+
+    def deleteNode(self, root: TreeNode, key: int) -> TreeNode:
+        def successor(root):
+            root = root.right
+            while root.left:
+                root = root.left
+            return root
+
+        def predecessor(root):
+            root = root.left
+            while root.right:
+                root = root.right
+            return root
+
+        if not root:
+            return root
+        if key > root.val:
+            root.right = self.deleteNode(root.right, key)
+        elif key < root.val:
+            root.left = self.deleteNode(root.left, key)
+        else:
+            if not root.left and not root.right:
+                root = None
+            elif root.right:
+                root.val = successor(root)
+                root.right = self.deleteNode(root.right, root.val)
+            else:
+                root.val = predecessor(root)
+                root.left = self.deleteNode(root.left, root.val)
+        return root
+
+    def isCompleteTree(self, root: TreeNode) -> bool:
+        if not root:
+            return True
+        q = collections.deque([root])
+        nc, nn = 1, 0
+        has_none = False
+        while q:
+            node = q.popleft()
+            nc -= 1
+            if not node:
+                has_none = True
+                continue
+            elif has_none: # there is a None before and then we meet a node
+                return False
+            q.append(node.left)
+            q.append(node.right)
+            nn += 2
+            if nc == 0:
+                nc, nn = nn, 0
+        return True
+
+    def inorderTraversal(self, root: TreeNode) -> List[int]:
+        res = []
+        if not root:
+            return res
+        st = []
+        while root or st:
+            if root:
+                st.append(root)
+                root = root.left
+            else:
+                root = st.pop()
+                res.append(root.val)
+                root = root.right
+        return res
+
+    def preorderTraversal(self, root: TreeNode) -> List[int]:
+
+
+
+
+
+
+
 
 
 

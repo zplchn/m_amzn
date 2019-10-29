@@ -85,6 +85,31 @@ class Solution:
         res[0] = l
         return res if res[0] <= res[1] else [-1, -1]
 
+    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
+        if not matrix or not matrix[0]:
+            return False
+        l, r = 0, len(matrix) - 1
+        while l <= r: # think there is one row so we need =
+            m = l + ((r - l) >> 1)
+            if matrix[m][-1] == target:
+                return True
+            elif matrix[m][-1] < target:
+                l = m + 1
+            else:
+                r = m - 1
+        if l >= len(matrix): # think one row
+            return False
+        ll, r = 0, len(matrix[0]) - 1
+        while ll <= r:
+            m = ll + ((r - ll) >> 1)
+            if matrix[l][m] == target:
+                return True
+            elif matrix[l][m] < target:
+                ll = m + 1
+            else:
+                r = m - 1
+        return False
+
 
 
 

@@ -223,6 +223,137 @@ class Solution:
             maxv = max(maxv, i - left + 1)
         return maxv
 
+    def lengthOfLastWord(self, s: str) -> int:
+        # if not s:                not ' ' is False. An string with space is Truthy
+        #     return 0
+        sa = s.split()
+        return len(sa[-1] if sa else 0)
+
+    def frequencySort(self, s: str) -> str:
+        if not s:
+            return s
+        c = collections.Counter(s)
+        return ''.join(k * v for k, v in c.most_common())
+
+    def partitionLabels(self, S: str) -> List[int]:
+        # hashmap for a letter -> its last index of appearance. Start loop and all letters between current and last
+        # will have to be in one partition and keep the last updated. once index reach a local max, it can form one partition.
+        res = []
+        if not S:
+            return res
+        hm = {}
+        for i, x in enumerate(S):
+            hm[x] = i
+        start, lmax = 0, 0
+        for i in range(len(S)):
+            lmax = max(hm[S[i]], lmax)
+            if i == lmax:
+                res.append(i - start + 1)
+                start = i + 1
+        return res
+
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        res = []
+        if not strs:
+            return res
+        hm = collections.defaultdict(list)
+        for s in strs:
+            t = tuple(sorted(list(s)))
+            hm[t].append(s)
+        return list(hm.values()) #hashmap.values() return a ValuesView iterable
+
+    def groupStrings(self, strings: List[str]) -> List[List[str]]:
+        res = []
+        if not strings:
+            return res
+        hm = collections.defaultdict(list)
+        for s in strings:
+            k = []
+            for i in range(1, len(s)):
+                k.append((ord(s[i]) - ord(s[0])) % 26) # 'za' and 'ab' are considered an anagram.  -1 % 26 = 25.
+            hm[tuple(k)].append(s)
+        return list(hm.values())
+
+    def areSentencesSimilar(self, words1: List[str], words2: List[str], pairs: List[List[str]]) -> bool:
+        if len(words1) != len(words2):
+            return False
+
+        hm = collections.defaultdict(set)
+        for x, y in pairs:
+            hm[x].add(y)
+            hm[y].add(x)
+        return all(words2[i] == words1[i] or words2[i] in hm[words1[i]] for i in range(len(words1)))
+
+    def lastSubstring(self, s: str) -> str:
+        if not s:
+            return s
+        i, j, k = 0, 1, 0
+        while j + k < len(s):
+            if s[j + k] > s[i + k]:
+                i, j = j, j + 1 #cacacb need to output cb not cacb. j need to be right next to the new i
+                k = 0
+            elif s[j + k] < s[i + k]:
+                j = j + k + 1
+                k = 0
+            else:
+                k += 1
+        return s[i:]
+
+    def reverseWords3(self, s: str) -> str:
+        return ' '.join([x[::-1] for x in s.split()])
+
+    def reverseWords(self, s: List[str]) -> None:
+        def reverse(i, j):
+            while i < j:
+                s[i], s[j] = s[j], s[i]
+                i, j = i + 1, j - 1
+        if not s:
+            return
+        reverse(0, len(s) - 1)
+        i = 0
+        for j in range(len(s) + 1):
+            if j == len(s) or s[j] == ' ':
+                reverse(i, j - 1)
+                i = j + 1
+
+    def addStrings(self, num1: str, num2: str) -> str:
+        if not num1 or not num2:
+            return num1 or num2
+        carry = 0
+        i, j = len(num1) - 1, len(num2) - 1
+        res = []
+        while i >= 0 or j >= 0 or carry:
+            sum = carry
+            if i >= 0:
+                sum += ord(num1[i]) - ord('0')
+                i -= 1
+            if j >= 0:
+                sum += ord(num2[j]) - ord('0')
+                j -= 1
+            res.append(str(sum % 10)) # use str() not chr(), because it's for ascii value to char
+            carry = sum // 10
+        return ''.join(reversed(res))
+
+    def reverseOnlyLetters(self, S: str) -> str:
+        if not S:
+            return S
+        i, j = 0, len(S) - 1
+        sa = list(S)
+        while i < j:
+            while i < j and not sa[i].isalpha():
+                i += 1
+            while i < j and not sa[j].isalpha():
+                j -= 1
+            sa[i], sa[j] = sa[j], sa[i]
+            i, j = i + 1, j - 1
+        return ''.join(sa)
+
+
+
+
+
+
+
 
 
 

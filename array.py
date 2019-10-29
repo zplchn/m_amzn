@@ -195,7 +195,205 @@ class Solution:
             """
             return self.size == self.k
 
+    class MaxStack:
 
+        def __init__(self):
+            """
+            initialize your data structure here.
+            """
+            self.st = []
+            self.maxst = []
+
+        def push(self, x: int) -> None:
+            self.st.append(x)
+            if not self.maxst or x >= self.maxst[-1]:
+                self.maxst.append(x)
+
+        def pop(self) -> int:
+            x = self.st.pop()
+            if x == self.maxst[-1]:
+                self.maxst.pop()
+            return x
+
+        def top(self) -> int:
+            return self.st[-1]
+
+        def peekMax(self) -> int:
+            return self.maxst[-1]
+
+        def popMax(self) -> int:
+            x = self.maxst.pop()
+            tst = []
+            while self.top() != x:
+                tst.append(self.st.pop())
+            # self.pop() CANNOT USE self.pop() because maxst has already been poped!!!!
+            self.st.pop()
+            while tst:
+                self.push(tst.pop()) # need to call push() because if [5,1] when 5 is out, need to recalculate max is 1
+            return x
+
+    # class NestedInteger(object):
+    #    def isInteger(self):
+    #        """
+    #        @return True if this NestedInteger holds a single integer, rather than a nested list.
+    #        :rtype bool
+    #        """
+    #
+    #    def getInteger(self):
+    #        """
+    #        @return the single integer that this NestedInteger holds, if it holds a single integer
+    #        Return None if this NestedInteger holds a nested list
+    #        :rtype int
+    #        """
+    #
+    #    def getList(self):
+    #        """
+    #        @return the nested list that this NestedInteger holds, if it holds a nested list
+    #        Return None if this NestedInteger holds a single integer
+    #        :rtype List[NestedInteger]
+    #        """
+
+    class NestedIterator(object):
+
+        def __init__(self, nestedList):
+            """
+            Initialize your data structure here.
+            :type nestedList: List[NestedInteger]
+            """
+            self.st = list(reversed(nestedList))
+
+        def next(self):
+            """
+            :rtype: int
+            """
+            return self.st.pop()
+
+        def hasNext(self):
+            """
+            :rtype: bool
+            """
+            while self.st:
+                if self.st[-1].isInteger():
+                    return True
+                t = reversed(self.st.pop().getList())
+                self.st.extend(t)
+            return False
+
+    class Vector2D:
+
+        def __init__(self, v: List[List[int]]):
+            self.v = v
+            self.r = self.c = 0
+
+        def next(self) -> int:
+            x = self.v[self.r][self.c]
+            self.c += 1
+            return x
+
+        def hasNext(self) -> bool:
+            while self.r < len(self.v):
+                if self.c < len(self.v[self.r]):
+                    return True
+                else:
+                    self.r, self.c = self.r + 1, 0
+            return False
+
+    class ZigzagIterator(object):
+
+        def __init__(self, v1, v2):
+            """
+            Initialize your data structure here.
+            :type v1: List[int]
+            :type v2: List[int]
+            """
+            self.vecs = [v1, v2]
+            self.q = collections.deque()
+            # iter1, iter2 = iter(v1), iter(v2) Python iterator only has one function that is next()
+            if v1:
+                self.q.append((0, 0))
+            if v2:
+                self.q.append((1, 0))
+
+
+        def next(self):
+            """
+            :rtype: int
+            """
+            v, c = self.q.popleft()
+            x = self.vecs[v][c]
+            c += 1
+            if c < len(self.vecs[v]):
+                self.q.append((v, c))
+            return x
+
+        def hasNext(self):
+            """
+            :rtype: bool
+            """
+            return len(self.q) > 0
+
+    class MyHashMap:
+        # a number % 1000 and // 1000 then can uniquely map the number itself
+
+        def __init__(self):
+            """
+            Initialize your data structure here.
+            """
+            self.hm = [[] for _ in range(1000)]
+
+        def put(self, key: int, value: int) -> None:
+            """
+            value will always be non-negative.
+            """
+            hashkey = key % 1000
+            if not self.hm[hashkey]:
+                self.hm[hashkey] = [-1 for _ in range(1000)]
+            self.hm[hashkey][key // 1000] = value
+
+        def get(self, key: int) -> int:
+            """
+            Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key
+            """
+            hashkey = key % 1000
+            return self.hm[hashkey][key // 1000] if self.hm[hashkey] else -1
+
+        def remove(self, key: int) -> None:
+            """
+            Removes the mapping of the specified value key if this map contains a mapping for the key
+            """
+            hashkey = key % 1000
+            if self.hm[hashkey]:
+                self.hm[hashkey][key // 1000] = -1
+
+    class TicTacToe:
+
+        def __init__(self, n: int):
+            """
+            Initialize your data structure here.
+            """
+            self.row = [0 for _ in range(n)]
+            self.col = [0 for _ in range(n)]
+            self.diag = self.revdiag = 0
+            self.n = n
+
+        def move(self, row: int, col: int, player: int) -> int:
+            """
+            Player {player} makes a move at ({row}, {col}).
+            @param row The row of the board.
+            @param col The column of the board.
+            @param player The player, can be either 1 or 2.
+            @return The current winning condition, can be either:
+                    0: No one wins.
+                    1: Player 1 wins.
+                    2: Player 2 wins.
+            """
+            x = 1 if player == 1 else -1
+            self.row[row] += x
+            self.col[col] += x
+            self.diag += x if row == col else 0
+            self.revdiag += x if row + col == self.n else 0
+            return abs(self.row[row]) == self.n or abs(self.col[col]) == self.n or abs(self.diag) == self.n or abs(
+                    self.revdiag) == self.n
 
 
     def fourSum(self, numbers, target):
@@ -613,6 +811,173 @@ class Solution:
                 res.append(summary(nums[i-1], nums[i]))
             res.append(summary(nums[-1], upper + 1))
         return list(filter(lambda x : x is not None, res))
+
+    def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        if not nums1 or not nums2:
+            return []
+        # use a stack to store a descending array and pop when meet a larger number
+        # hm to map the k -> larger and at last loop nums1 to map k to v in hm
+        st = []
+        hm = {}
+        for x in nums2:
+            while st and x > st[-1]:
+                hm[st.pop()] = x
+            st.append(x)
+        return [hm.get(k, -1) for k in nums1]
+
+    def nextGreaterElements(self, nums: List[int]) -> List[int]:
+        #loop twice so solve the circular problem. and st store the index and only when index < n.
+        #second round only for loop up
+        if not nums:
+            return nums
+        res = [-1 for _ in range(len(nums))]
+        st = []
+        for i in range(len(nums) * 2):
+            while st and nums[st[-1]] < nums[i % len(nums)]:
+                    res[st.pop()] = nums[i % len(nums)]
+            if i < len(nums):
+                st.append(i)
+        return res
+
+    def nextGreaterElement3(self, n: int) -> int:
+        # this is exactly next permutation
+        ca = list(str(n))
+        i = len(ca) - 2
+        while i >= 0 and ca[i] >= ca[i + 1]:
+            i -= 1
+        if i < 0:
+            return -1
+        j = len(ca) - 1
+        while ca[j] <= ca[i]:
+            j -= 1
+        ca[i], ca[j] = ca[j], ca[i]
+        ca[i + 1:] = ca[len(ca) - 1:i:-1]
+        x = ''.join(ca)
+        return int(x) if int(x) <= 2 ** 31 - 1 else -1
+
+    def subarraySum(self, nums: List[int], k: int) -> int:
+        if not nums:
+            return 0
+        # nagetive possible so there will be multiple local sum intervals
+        hm = {}
+        hm[0] = 1
+        res, sum = 0, 0
+        for x in nums:
+            sum += x
+            # the add to hs need to happen after the check. because when k == 0, if add first, it will be true
+            res += hm.get(sum - k, 0)
+            # hm[sum] += 1
+            hm[sum] = hm.get(sum, 0) + 1
+        return res
+
+    def maximumProduct(self, nums: List[int]) -> int:
+        # there are only two possibilities, the biggest 3 or 2 negs * biggest postive. Just need to compare two cases.
+        if len(nums) < 3:
+            return 0
+        nums.sort()
+        return max(nums[0] * nums[1] * nums[-1], nums[-3] * nums[-2] * nums[-1])
+
+    def nextPermutation(self, nums: List[int]) -> None:
+        if not nums:
+            return
+        i = len(nums) - 2
+        while i >= 0 and nums[i] >= nums[i + 1]:
+            i -= 1
+        if i < 0:
+            nums[:] = nums[::-1]
+            return
+        j = len(nums) - 1
+        while nums[j] <= nums[i]:
+            j -= 1
+        nums[i], nums[j] = nums[j], nums[i]
+        nums[i+1:] = nums[-1:i:-1]
+
+    def gameOfLife(self, board: List[List[int]]) -> None:
+        if not board or not board[0]:
+            return
+        # 0: dead -> dead 1 : live -> live 2: live -> dead 3: dead -> live
+        offsets = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                sumv = 0
+                for o in offsets:
+                    x, y = i + o[0], j + o[1]
+                    if 0 <= x < len(board) and 0 <= y < len(board[0]) and board[x][y] in [1, 2]: # need to check the
+                        # used to live case!!
+                        sumv += 1
+                if board[i][j] == 1 and (sumv < 2 or sumv > 3):
+                    board[i][j] = 2
+                elif board[i][j] == 0 and sumv == 3:
+                    board[i][j] = 3
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                board[i][j] %= 2
+
+    def rotate(self, nums: List[int], k: int) -> None:
+        k %= len(nums)
+        if k == 0:
+            return # need this check
+        nums[:-k] = nums[-k-1::-1]
+        nums[-k:] = nums[:-k-1:-1]
+        nums[:] = nums[::-1]
+
+    def addToArrayForm(self, A: List[int], K: int) -> List[int]:
+        res = []
+        i = len(A) - 1
+        carry = 0
+        while i >= 0 or K > 0 or carry:
+            sum = carry
+            if i >= 0:
+                sum += A[i]
+                i -= 1
+            if K > 0:
+                sum += K % 10
+                K //= 10
+            res.append(sum % 10)
+            carry = sum // 10
+        return res[::-1]
+
+    def generate(self, numRows: int) -> List[List[int]]:
+        if numRows <= 0:
+            return []
+        res = [[1]]
+        while numRows > 1:
+            t = [1]
+            for i in range(len(res[-1]) - 1):
+                t.append(res[-1][i] + res[-1][i+1])
+            t.append(1)
+            numRows -= 1
+            res.append(t)
+        return res
+
+    def searchMatrix(self, matrix, target):
+        if not matrix or not matrix[0]:
+            return False
+        i, j = len(matrix) - 1, 0
+        while i >= 0 and j < len(matrix[0]):
+            if matrix[i][j] == target:
+                return True
+            elif matrix[i][j] < target:
+                j += 1
+            else:
+                i -= 1
+        return False
+
+    def wiggleSort(self, nums: List[int]) -> None:
+        if not nums:
+            return
+        for i in range(1, len(nums)):
+            if i % 2 == 1 and nums[i] < nums[i - 1] or i % 2 == 0 and nums[i] > nums[i - 1]:
+                nums[i], nums[i - 1] = nums[i - 1], nums[i]
+
+
+
+
+
+
+
+
+
 
 
 

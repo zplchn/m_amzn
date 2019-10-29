@@ -230,6 +230,108 @@ class Solution:
         cure.next = None
         return dummyo.next
 
+    def partition(self, head: ListNode, x: int) -> ListNode:
+        if not head:
+            return head
+        dummy_lt = clt = ListNode(0)
+        dummy_gt = clg = ListNode(0)
+        while head:
+            if head.val < x:
+                clt.next = head
+                clt = clt.next
+            else:
+                clg.next = head
+                clg = clg.next
+            head = head.next
+        clt.next = dummy_gt.next
+        clg.next = None
+        return dummy_lt.next
+
+    def deleteDuplicates(self, head: ListNode) -> ListNode:
+        if not head:
+            return head
+        pre = dummy = ListNode(0)
+        pre.next = head
+        has_dup = False
+        cur = head
+
+        while cur:
+            while cur.next and cur.val == cur.next.val:
+                has_dup = True
+                cur.next = cur.next.next
+            if has_dup:
+                pre.next = cur.next
+            else:
+                pre = cur
+            cur = cur.next
+            has_dup = False
+        return dummy.next
+
+    def swapPairs(self, head: ListNode) -> ListNode:
+        if not head:
+            return head
+        dummy = pre = ListNode(0)
+        dummy.next = cur = head
+
+        while cur and cur.next:
+            next = cur.next.next
+            pre.next = cur.next
+            cur.next.next = cur
+            pre = cur
+            cur = next
+        pre.next = cur
+        return dummy.next
+
+    def reverseBetween(self, head: ListNode, m: int, n: int) -> ListNode:
+        if not head:
+            return head
+        dummy = left = ListNode(0)
+        dummy.next = head
+        x = n - m
+        while m > 1:
+            left = left.next
+            m -= 1
+        cur = left.next
+        pre = None
+        while x >= 0:
+            next = cur.next
+            cur.next = pre
+            pre = cur
+            cur = next
+            x -= 1
+        left.next.next = cur
+        left.next = pre
+        return dummy.next
+
+    def reorderList(self, head: ListNode) -> None:
+        if not head or not head.next:
+            return
+        slow = fast = head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+        pre = None
+        cur = slow
+        while cur:
+            next = cur.next
+            cur.next = pre
+            pre = cur
+            cur = next
+        t = ListNode(0)
+        n = 1
+        while head and pre:
+            if n % 2 == 1:
+                t.next = head
+                head = head.next
+            else:
+                t.next = pre
+                pre = pre.next
+            t = t.next
+            n += 1
+
+
+
+
 
 
 

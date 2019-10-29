@@ -165,6 +165,86 @@ class Solution:
         dfs('JFK')
         return res[::-1]
 
+    def countComponents(self, n: int, edges: List[List[int]]) -> int:
+        def dfs(i):
+            visited[i] = True
+            for y in graph[i]:
+                if not visited[y]:
+                    dfs(y)
+        if n <= 0:
+            return 0
+        # for graph, convert into adjacency list first
+        graph = [[] for _ in range(n)]
+        # visited = [False * n] False * 3 = 0; True * 3 = 3; init an array MUST use for _ in range(x) Not *
+        visited = [False for _ in range(n)]
+        res = 0
+
+        for x, y in edges:
+            graph[x].append(y)
+            graph[y].append(x)
+
+        for i, x in enumerate(visited):
+            if not x:
+                res += 1
+                dfs(i)
+        return res
+
+    def accountsMerge(self, accounts: List[List[str]]) -> List[List[str]]:
+        def dfs(i: int, t: List) -> None:
+            visited[i] = True
+            for j in range(1, len(accounts[i])):
+                t.append(accounts[i][j])
+                for k in hm[accounts[i][j]]:
+                    if not visited[k]:
+                        dfs(k, t)
+
+        res = []
+        if not accounts:
+            return res
+        visited = [False for _ in range(len(accounts))]
+        # create graph based on emails . Want to combine based on what then have to create adjacency list based on it
+        # and treat it as vertex.
+
+        hm = collections.defaultdict(list)
+        for i, l in enumerate(accounts):
+            for j in range(1, len(l)):
+                hm[l[j]].append(i)
+        for i, x in enumerate(visited):
+            if not x:
+                t = []
+                dfs(i, t)
+                combi = [accounts[i][0]]
+                combi.extend(sorted(set(t))) # the same email will be added wherever it appears in multiple list
+                # print(t)
+                res.append(combi)
+        return res
+
+    def areSentencesSimilarTwo(self, words1: List[str], words2: List[str], pairs: List[List[str]]) -> bool:
+        def dfs(i: int, key: str) -> bool:
+            visited.add(key)
+            if words2[i] in hm[key]:
+                return True
+            for w in hm[key]:
+                if w not in visited and dfs(i, w):
+                    return True
+            return False
+
+        if len(words1) != len(words2):
+            return False
+        hm = collections.defaultdict(set)
+        for x, y in pairs:
+            hm[x].add(y)
+            hm[y].add(x)
+        for i in range(len(words1)):
+            if words2[i] == words1[i]:
+                continue
+            visited = set()
+            if not dfs(i, words1[i]):
+                return False
+        return True
+
+
+
     
 
 
