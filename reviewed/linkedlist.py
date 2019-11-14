@@ -1,72 +1,149 @@
+import random
+from collections import OrderedDict, defaultdict
+from typing import List
+
+
 class Node:
     def __init__(self, val, next, random):
         self.val = val
         self.next = next
         self.random = random
 
+
 class ListNode:
     def __init__(self, val):
         self.val = val
         self.next = None
 
-class Solution:
-    class LRUCache:
-        class ListNode:
-            def __init__(self, key=None, val=None):
-                # python func does not support overloading! every same name func
-                # replace previous one. Use default value and factory methord to construct condionally
 
-                self.key = key  # used when try to delete node
-                self.val = val
-                self.pre = self.next = None
+class Solution382:
 
-        def __init__(self, capacity: int):
-            self.cap = capacity
-            self.head, self.tail = self.ListNode(), self.ListNode()
-            self.size = 0
-            self.hm = {}
-            self.head.next = self.tail
-            self.tail.pre = self.head
+    def __init__(self, head: ListNode):
+        """
+        @param head The linked list's head.
+        Note that the head is guaranteed to be not null, so it contains at least one node.
+        """
+        self.head = head
 
-        def get(self, key: int) -> int:
-            if key not in self.hm:
-                return -1
-            res = self.hm[key]
-            self.move_to_head(res)
-            return res.val
+    def getRandom(self) -> int:
+        """
+        Returns a random node's value.
+        """
+        # k = 1 resevoir sampling
+        res = self.head
+        cur = res.next
+        count = 1
+        while cur:
+            if random.randint(0, count) == 0: #random find a node including cur and check if is < k (k = 1). if so
+                # use it
+                res = cur.val
+            count += 1
+            cur = cur.next
+        return res
 
-        def put(self, key: int, value: int) -> None:
-            if key in self.hm:
-                x = self.hm[key]
-                x.val = value
-                self.move_to_head(x)
-            else:
-                if self.size == self.cap:
-                    del self.hm[self.tail.pre.key]  # dont forget to remove from hm
-                    self.delete_node(self.tail.pre)
-                    self.size -= 1
 
-                node = self.ListNode(key, value)
-                self.insert_to_head(node)
-                self.hm[key] = node
-                self.size += 1
+class LRUCache:
+    class ListNode:
+        def __init__(self, key=None, val=None):
+            # python func does not support overloading! every same name func
+            # replace previous one. Use default value and factory methord to construct condionally
 
-        def insert_to_head(self, node):
-            if self.head.next == node:
-                return
-            node.next = self.head.next
-            self.head.next.pre = node
-            node.pre = self.head
-            self.head.next = node
+            self.key = key  # used when try to delete node
+            self.val = val
+            self.pre = self.next = None
 
-        def move_to_head(self, node):
-            self.delete_node(node)
+    def __init__(self, capacity: int):
+        self.cap = capacity
+        self.head, self.tail = self.ListNode(), self.ListNode()
+        self.size = 0
+        self.hm = {}
+        self.head.next = self.tail
+        self.tail.pre = self.head
+
+    def get(self, key: int) -> int:
+        if key not in self.hm:
+            return -1
+        res = self.hm[key]
+        self.move_to_head(res)
+        return res.val
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.hm:
+            x = self.hm[key]
+            x.val = value
+            self.move_to_head(x)
+        else:
+            if self.size == self.cap:
+                del self.hm[self.tail.pre.key]  # dont forget to remove from hm
+                self.delete_node(self.tail.pre)
+                self.size -= 1
+
+            node = self.ListNode(key, value)
             self.insert_to_head(node)
+            self.hm[key] = node
+            self.size += 1
 
-        def delete_node(self, node):
-            node.pre.next = node.next
-            node.next.pre = node.pre
+    def insert_to_head(self, node):
+        if self.head.next == node:
+            return
+        node.next = self.head.next
+        self.head.next.pre = node
+        node.pre = self.head
+        self.head.next = node
 
+    def move_to_head(self, node):
+        self.delete_node(node)
+        self.insert_to_head(node)
+
+    def delete_node(self, node):
+        node.pre.next = node.next
+        node.next.pre = node.pre
+
+
+class LFUCache:
+    class Node:
+        def __init__(self, k, v, count):
+            self.k, self.v, self.count = k, v, count
+
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.hm_key = {}
+        self.hm_count = defaultdict(OrderedDict)
+        self.minc = None
+
+    def get(self, key):
+        if key not in self.hm_key:
+            return -1
+        node = self.hm_key[key]
+        self.bump_node(node)
+        return node.v
+
+    def put(self, key, value):
+        if self.capacity <= 0:
+            return
+        if key in self.hm_key:
+            node = self.hm_key[key]
+            node.v = value
+            self.bump_node(node)
+            return
+        if len(self.hm_key) == self.capacity:
+            k, v = self.hm_count[self.minc].popitem(last=False)
+            del self.hm_key[k]
+        self.hm_key[key] = self.hm_count[1][key] = self.Node(key, value, 1)
+        self.minc = 1
+
+    def bump_node(self, node: Node):
+        del self.hm_count[node.count][node.k]
+        if not self.hm_count[node.count]:
+            del self.hm_count[node.count]
+
+        if self.minc not in self.hm_count:
+            self.minc += 1
+        node.count += 1
+        self.hm_count[node.count][node.k] = node
+
+
+class Solution:
     def copyRandomList(self, head: 'Node') -> 'Node':
         if not head:
             return head
@@ -172,7 +249,7 @@ class Solution:
     def getIntersectionNode(self, headA, headB):
         if not headA or not headB:
             return None # return None if one not exist
-        m, n = 0
+        m, n = 0, 0
         curA, curB = headA, headB
         while curA:
             m += 1
@@ -328,6 +405,89 @@ class Solution:
                 pre = pre.next
             t = t.next
             n += 1
+
+    def detectCycle(self, head: ListNode) -> ListNode:
+        if not head:
+            return head
+        slow = fast = head
+        has_cycle = False
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+            if slow == fast:
+                has_cycle = True
+                break
+        if not has_cycle:
+            return None
+        slow = head
+        while slow != fast:
+            slow = slow.next
+            fast = fast.next
+        return slow
+
+    def insert(self, head: 'Node', insertVal: int) -> 'Node':
+        class Node:
+            def __init__(self, val, next):
+                self.val = val
+                self.next = next
+
+        if not head:
+            head = Node(insertVal, None)
+            head.next = head
+            return head
+        # two pointers, if pre <= insert <= cur, insert it; else if at pivot, insert >= pre or insert <= cur, insert
+        # cyclic, while loop break when cur become head again
+        pre, cur = head, head.next
+        while cur != head:
+            if pre.val <= insertVal <= cur.val:
+                break
+            if pre.val > cur.val and (insertVal >= pre.val or insertVal <= cur.val):
+                break
+            pre, cur = cur, cur.next
+        pre.next = Node(insertVal, cur)
+        return head
+
+    def splitListToParts(self, root: ListNode, k: int) -> List[ListNode]:
+        # the first N % K sub list will have an extra node. plus the avg of N // K
+        res = [None] * k
+        if not root:
+            return res
+        n = 0
+        cur = root
+        while cur:
+            n += 1
+            cur = cur.next
+        avg, ext = n // k, n % k
+        cur = root
+        for i in range(k):
+            res[i] = cur
+            if cur:
+                for j in range(avg + (1 if i < ext else 0) - 1):
+                    cur = cur.next
+                t = cur.next
+                cur.next = None
+                cur = t
+        return res
+
+    def nextLargerNodes(self, head: ListNode) -> List[int]:
+        # maintain a st caching numbers and immmeditely pop once a larger number shows up. store index because number
+        # can duplicate
+        res = []
+        if not head:
+            return res
+        while head:
+            res.append(head.val)
+            head = head.next
+        st = []
+        for i in range(len(res)):
+            while st and res[st[-1]] < res[i]:
+                res[st.pop()] = res[i]
+            st.append(i)
+        while st:
+            res[st.pop()] = 0
+        return res
+
+
 
 
 

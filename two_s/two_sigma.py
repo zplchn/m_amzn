@@ -62,6 +62,8 @@ class Solution:
                 i, j = i + 1, j + 1
         return ' '.join(res)
 
+
+
 s = Solution()
 
 x = 'i like soft cheese and hard cheese yum'

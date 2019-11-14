@@ -288,6 +288,33 @@ class Solution:
                     res.append([i, j])
         return res
 
+    def restoreIpAddresses(self, s: str) -> List[str]:
+        def dfs(i, k, combi):
+            if k == 3:
+                ss = s[i:]
+                if is_valid(ss):
+                    t = combi[:]
+                    t.append(ss)
+                    res.append('.'.join(t))
+                return
+            for j in range(i + 1, i + 4):
+                # when there are both range() and str slicing happens, pay attention to end condition.
+                # i cannot be i + 4 and then slice cannot take i + 3
+                ss = s[i:j]
+                if is_valid(ss):
+                    combi.append(ss)
+                    dfs(j, k + 1, combi)
+                    combi.pop()
+
+        def is_valid(s) -> bool:
+            return 0 < len(s) <= 3 and int(s) <= 255 and not (len(s) > 1 and s[0] == '0')
+
+        res = []
+        if not s:
+            return res
+        dfs(0, 0, [])
+        return res
+
 
 
 

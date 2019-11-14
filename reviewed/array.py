@@ -1,5 +1,31 @@
 from typing import List
 import collections
+import random
+
+
+class Solution384:
+
+    def __init__(self, nums: List[int]):
+        self.nums = nums
+        self.original = nums[::]
+
+    def reset(self) -> List[int]:
+        """
+        Resets the array to its original configuration and return it.
+        """
+        self.nums = self.original[::]
+        return self.nums
+
+    def shuffle(self) -> List[int]:
+        """
+        Returns a random shuffling of the array.
+        """
+        # iterate the array and for every num swap with [current(included), end] by random
+        for i in range(len(self.nums)):
+            j = random.randrange(i, len(self.nums))
+            # random.randrange(start, stop) returns a random number [start, stop)
+            self.nums[i], self.nums[j] = self.nums[j], self.nums[i]
+        return self.nums
 
 class Solution:
 
@@ -11,13 +37,10 @@ class Solution:
             self.q = collections.deque()
 
         def next(self, val: int) -> float:
-            if len(self.q) < self.size:
-                self.sum += val
-                self.q.append(val)
-            else:
+            if len(self.q) ==  self.size:
                 self.sum -= self.q.popleft()
-                self.sum += val
-                self.q.append(val)
+            self.sum += val
+            self.q.append(val)
             return self.sum // len(self.q)
 
     class MyQueue:
@@ -146,7 +169,6 @@ class Solution:
             """
             self.k = k
             self.size = 0
-            # self.q = [0 * k] Cannot do this way because k is a int
             self.q = [0 for _ in range(k)]
             self.head = self.tail = 0
 
@@ -765,7 +787,7 @@ class Solution:
                 sum = 0
         return start if total >= 0 else -1
 
-    def checkValidString(self, s: str) -> bool:
+    def checkValidString678(self, s: str) -> bool:
         if not s:
             return True
         # swipe twice, first time left to right, and all * count as (. use a cnt, ( + 1, ) -1. any time cnt < 0 means
@@ -855,7 +877,7 @@ class Solution:
         x = ''.join(ca)
         return int(x) if int(x) <= 2 ** 31 - 1 else -1
 
-    def subarraySum(self, nums: List[int], k: int) -> int:
+    def subarraySum560(self, nums: List[int], k: int) -> int:
         if not nums:
             return 0
         # nagetive possible so there will be multiple local sum intervals
@@ -969,6 +991,185 @@ class Solution:
         for i in range(1, len(nums)):
             if i % 2 == 1 and nums[i] < nums[i - 1] or i % 2 == 0 and nums[i] > nums[i - 1]:
                 nums[i], nums[i - 1] = nums[i - 1], nums[i]
+
+    def canAttendMeetings(self, intervals: List[List[int]]) -> bool:
+        intervals.sort()
+        for i in range(1, len(intervals)):
+            if intervals[i][0] < intervals[i - 1][1]:
+                return False
+        return True
+
+    def distributeCandies(self, candies: List[int]) -> int:
+        hs = set(candies)
+        return min(len(candies) // 2, len(hs))
+
+    def isAlienSorted(self, words: List[str], order: str) -> bool:
+        hm = {c: i for i, c in enumerate(order)}
+        for i in range(1, len(words)):
+            minl = min(len(words[i-1]), len(words[i]))
+            for j in range(minl):
+                if words[i-1][j] != words[i][j]:
+                    if hm[words[i-1][j]] > hm[words[i][j]]:
+                        return False
+                    break
+            else:
+                if len(words[i-1]) > len(words[i]):
+                    return False
+        return True
+
+    def sortedSquares(self, A: List[int]) -> List[int]:
+        if not A:
+            return A
+        if A[0] >= 0:
+            return [a * a for a in A]
+        i, j = 0, len(A) - 1
+        res = []
+        while i <= j:
+            if abs(A[i]) < abs(A[j]):
+                res.append(A[j] * A[j])
+                j -= 1
+            else:
+                res.append(A[i] * A[i])
+                i += 1
+        return res[::-1]
+
+    def reconstructQueue(self, people: List[List[int]]) -> List[List[int]]:
+        # greedy. insert highest people first, with order smaller in front. Then lower people, just insert at order
+        # position, because lower people are invisible to higher people
+        if not people:
+            return people
+        people.sort(key=lambda p: (-p[0], p[1]))
+        res = []
+        # python insert works for empty or shorter list, position will be ignored and just insert, no exception thrown
+        for p in people:
+            res.insert(p[1], p)
+        return res
+
+    def countBattleships(self, board: List[List[str]]) -> int:
+        if not board or not board[0]:
+            return 0
+        res = 0
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                if board[i][j] == 'X':
+                    if i > 0 and board[i-1][j] == 'X' or j > 0 and board[i][j - 1] == 'X':
+                        continue
+                    res += 1
+        return res
+
+    def fizzBuzz(self, n: int) -> List[str]:
+        res = []
+        for i in range(1, n + 1):
+            if i % 3 == 0 and i % 5 == 0:
+                res.append('FizzBuzz')
+            elif i % 3 == 0:
+                res.append('Fizz')
+            elif i % 5 == 0:
+                res.append('Buzz')
+            else:
+                res.append(str(i))
+        return res
+
+    def validTicTacToe(self, board: List[str]) -> bool:
+        # invalid cases: 1. count O != count X or count X - 1
+        # 2. X win and count O != count X -1
+        # 3. O win and count X != count X
+
+        cnt_x = sum(row.count('X') for row in board)
+        cnt_o = sum(row.count('O') for row in board)
+
+        def win(player):
+            for i in range(3):
+                # all row or all column
+                if all(board[i][j] == player for j in range(3)) or all(board[j][i] == player for j in range(3)):
+                    return True
+            return all(board[i][i] == player for i in range(3)) or all(board[i][2 - i] == player for i in range(3))
+
+        if cnt_o not in {cnt_x, cnt_x - 1}:
+            return False
+        if win('X') and cnt_o != cnt_x - 1:
+            return False
+        if win('O') and cnt_o != cnt_x:
+            return False
+        return True
+
+    def isHappy(self, n: int) -> bool:
+        if n <= 0:
+            return False
+        hs = set()
+        while n != 1:
+            sum = 0
+            while n != 0:
+                sum += (n % 10) * (n % 10)
+                n //= 10
+            if sum in hs:
+                return False
+            hs.add(sum)
+            n = sum
+        return True
+
+    def findDuplicates(self, nums: List[int]) -> List[int]:
+        res = []
+        if not nums:
+            return res
+        # use position as indicator since num are between 1 and N. set to negative for nums[nums[i] - 1]
+        for i in range(len(nums)):
+            idx = abs(nums[i]) - 1
+            if nums[idx] < 0:
+                res.append(idx + 1)
+            nums[idx] = -nums[idx]
+        return res
+
+    def thirdMax(self, nums: List[int]) -> int:
+        if not nums:
+            return -1
+        first = second = third = float('-inf')
+        for x in nums:
+            if x > first:
+                third, second, first = second, first, x
+            elif second < x < first:
+                third, second = second, x
+            elif third < x < second:
+                third = x
+        return first if third == float('-inf') else third
+
+    def computeArea(self, A: int, B: int, C: int, D: int, E: int, F: int, G: int, H: int) -> int:
+        area1, area2 = (C - A) * (D - B), (G - E) * (H - F)
+        # no intersection
+        if E >= C or G <= A or F >= D or H <= B:
+            return area1 + area2
+        return area1 + area2 - (min(C, G) - max(E, A)) * (min(D, H) - max(B, F))
+
+    def isRectangleOverlap(self, rec1: List[int], rec2: List[int]) -> bool:
+        return not (rec2[0] >= rec1[2] or rec2[2] <=rec1[0] or rec1[1] >= rec2[3] or rec1[3] <= rec2[1])
+
+    def maxSubarraySumCircular(self, A: List[int]) -> int:
+        # so the max will be either a normal max subarray in the middle; or the total - min subarray, which is part
+        # head and part tail. Cornor case is when all neg, then the latter would be zero but we still return one element
+        if not A:
+            return 0
+        lmax, lmin, maxv, minv, total = 0, 0, float('-inf'), float('inf'), 0
+        for x in A:
+            lmax = max(lmax + x, x)
+            maxv = max(maxv, lmax)
+            lmin = min(lmin + x, x)
+            minv = min(lmin, minv)
+            total += x
+        return max(maxv, total - minv) if maxv >= 0 else maxv
+
+    def sortArrayByParityII(self, A: List[int]) -> List[int]:
+        # we only focus on the even and swap when it's not an even number
+        if not A:
+            return A
+        o = 1
+        for e in range(0, len(A), 2):
+            if A[e] % 2 == 1:
+                while A[o] % 2 == 1:
+                    o += 2
+                A[e], A[o] = A[o], A[e]
+        return A
+
+
 
 
 

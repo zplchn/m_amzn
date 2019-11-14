@@ -28,6 +28,10 @@ class Node:
         self.next = next
         self.parent = parent
 
+    def __init__(self, val, children):
+        self.val = val
+        self.children = children
+
 
 class Codec:
 
@@ -69,6 +73,104 @@ class Codec:
         q = collections.deque(data.split(','))
         return dfs()
 
+
+class BSTIterator:
+
+    def __init__(self, root: TreeNode):
+        self.cur = root
+        self.st = []
+
+    def next(self) -> int:
+        while self.cur:
+            self.st.append(self.cur)
+            self.cur = self.cur.left
+        self.cur = self.st.pop()
+        res = self.cur.val
+        self.cur = self.cur.right
+        return res
+
+    def hasNext(self) -> bool:
+        return self.cur is not None or len(self.st) > 0
+
+
+class Trie:
+    class TrieNode:
+        def __init__(self):
+            # use a dict instead of array of 26
+            self.children = collections.defaultdict(Trie.TrieNode)
+            self.is_word = False
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.root = self.TrieNode()
+
+    def insert(self, word: str) -> None:
+        """
+        Inserts a word into the trie.
+        """
+        node = self.root
+        for w in word:
+            node = node.children[w] # dict[] create if node not exist
+        node.is_word = True
+
+    def search(self, word: str) -> bool:
+        """
+        Returns if the word is in the trie.
+        """
+        node = self.root
+        for w in word:
+            if w not in node.children:
+                return False
+            node = node.children[w]
+        return node.is_word
+
+    def startsWith(self, prefix: str) -> bool:
+        """
+        Returns if there is any word in the trie that starts with the given prefix.
+        """
+        node = self.root
+        for w in prefix:
+            if w not in node.children:
+                return False
+            node = node.children[w]
+        return True
+
+
+class WordDictionary:
+    class TrieNode:
+        def __init__(self):
+            self.children = collections.defaultdict(WordDictionary.TrieNode)
+            self.is_word = False
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.root = self.TrieNode()
+
+    def addWord(self, word: str) -> None:
+        """
+        Adds a word into the data structure.
+        """
+        node = self.root
+        for w in word:
+            node = node.children[w]
+        node.is_word = True
+
+    def search(self, word: str) -> bool:
+        """
+        Returns if the word is in the data structure. A word could contain the dot character '.' to represent any one letter.
+        """
+        def dfs(node, i):
+            if i == len(word):
+                return node.is_word
+            if word[i] != '.':
+                return word[i] in node.children and dfs(node.children[word[i]], i + 1)
+            else:
+                return any(dfs(node.children[k], i + 1) for k in node.children)
+        return dfs(self.root, 0)
 
 class Solution:
     def serialize(self, root):
@@ -577,7 +679,7 @@ class Solution:
     def inorderSuccessor(self, root: 'TreeNode', p: 'TreeNode') -> 'TreeNode':
         if not root or not p:
             return None
-        res = None # this can be the last left (parent) or next left (child)
+        res = None # this can be the last left (parent) or next right (child)
         while root:
             if root.val > p.val:
                 res = root
@@ -730,8 +832,6 @@ class Solution:
                 root = root.left
         return res
 
-    # def preorderTraversal(self, root: TreeNode) -> List[int]:
-
     def deleteNode(self, root: TreeNode, key: int) -> TreeNode:
         def successor(root):
             root = root.right
@@ -799,6 +899,76 @@ class Solution:
         return res
 
     def preorderTraversal(self, root: TreeNode) -> List[int]:
+        res = []
+        if not root:
+            return res
+        st = []
+        while root or st:
+            if root:
+                res.append(root.val)
+                st.append(root)
+                root = root.left
+            else:
+                root = st.pop()
+                root = root.right
+        return res
+
+    def preorder(self, root: 'Node') -> List[int]:
+        res = []
+        if not root:
+            return res
+        st = [root]
+        while st:
+            x = st.pop()
+            res.append(x.val)
+            st.extend(reversed(x.children))
+        return res
+
+    def widthOfBinaryTree662(self, root: TreeNode) -> int:
+        # mark a number for each node as i, then left child would be 2i and right be 2i + 1
+        if not root:
+            return 0
+        q = collections.deque([(root, 1)])
+        res = 1
+
+        while q:
+            left = q[0][1]
+            right = q[-1][1]
+            n = len(q)
+            for i in range(n): # for will take the new entries added to a list
+                node, idx = q.popleft()
+                if node.left:
+                    q.append((node.left, idx * 2))
+                if node.right:
+                    q.append((node.right, idx * 2 + 1))
+            res = max(res, right - left + 1)
+        return res
+
+    def construct427(self, grid: List[List[int]]) -> 'Node':
+        class Node:
+            def __init__(self, val, isLeaf, topLeft, topRight, bottomLeft, bottomRight):
+                self.val = val
+                self.isLeaf = isLeaf
+                self.topLeft = topLeft
+                self.topRight = topRight
+                self.bottomLeft = bottomLeft
+                self.bottomRight = bottomRight
+
+        # dfs, recursively check if all number is same within the square by setting i, j range. and dfs if not all same
+        def dfs(i, j, n):
+            if n == 0:
+                return None
+            for x in range(i, i + n):
+                for y in range(j, j + n):
+                    if grid[x][y] != grid[i][j]:
+                        n //= 2
+                        return Node(False, False, dfs(i, j, n), dfs(i, j + n, n), dfs(i + n, j, n), dfs(i + n, j + n,
+                                                                                                        n))
+            return Node(grid[i][j] == 1, True, None, None, None, None)
+        if not grid or not grid[0]:
+            return None
+        return dfs(0, 0, len(grid))
+
 
 
 
