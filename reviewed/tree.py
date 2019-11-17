@@ -969,6 +969,22 @@ class Solution:
             return None
         return dfs(0, 0, len(grid))
 
+    def sumRootToLeaf1022(self, root: TreeNode) -> int:
+        def dfs(root, pre):
+            nonlocal res
+            if not root:
+                return
+            sum = pre * 2 + root.val
+            if not root.left and not root.right:
+                res += sum
+                return
+            dfs(root.left, sum)
+            dfs(root.right, sum)
+        res = 0
+        if not root:
+            return res
+        dfs(root, 0)
+        return res
 
 
 

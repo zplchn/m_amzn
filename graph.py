@@ -23,24 +23,6 @@ class Solution:
                     q.append(c)
         return cnt == numCourses
 
-    def wallsAndGates(self, rooms: List[List[int]]) -> None:
-        if not rooms or not rooms[0]:
-            return
-        q = collections.deque()
-        for i in range(len(rooms)):
-            for j in range(len(rooms[0])):
-                if rooms[i][j] == 0:
-                    q.append((i, j))
-        offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
-
-        while q:
-            x, y = q.popleft()
-            for o in offsets:
-                i, j = x + o[0], y + o[1]
-                if 0 <= i < len(rooms) and 0 <= j < len(rooms[0]) and rooms[i][j] > rooms[x][y]:
-                    rooms[i][j] = rooms[x][y] + 1
-                    q.append((i, j))
-
     def shortestBridge(self, A: List[List[int]]) -> int:
         if not A or not A[0]:
             return 0
@@ -242,6 +224,46 @@ class Solution:
             if not dfs(i, words1[i]):
                 return False
         return True
+
+    def validTree(self, n: int, edges: List[List[int]]) -> bool:
+        def find(i):
+            x = i
+            while roots[i] != i:
+                i = roots[i]
+            while x != i:
+                t = roots[x]
+                roots[x] = i
+                x = t
+            return i
+
+        # for an graph to be valid tree : 1. connected 2. no circle
+        if len(edges) != n - 1:
+            return False # maybe all connected. if no circle
+        # union find if one edge 2 nodes are already connected, then it's a circle
+        roots = list(range(n))
+        for e in edges:
+            ra, rb = map(find, e)
+            if ra == rb:
+                return False
+            roots[rb] = ra
+        return True
+
+    def findRedundantConnection684(self, edges: List[List[int]]) -> List[int]:
+        def find(i):
+            if roots[i] != i: # path compression at same time
+                roots[i] = find(roots[i])
+            return roots[i]
+
+        roots = list(range(len(edges) + 1))
+        for e in edges:
+            ra, rb = map(find, e)
+            if ra == rb:
+                return e
+            roots[ra] = rb
+        return []
+
+
+
 
 
 
