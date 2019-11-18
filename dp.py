@@ -89,6 +89,49 @@ class Solution:
         hm = {} # based on node
         return dfs(root)
 
+    def wordBreak139(self, s: str, wordDict: List[str]) -> bool:
+        if not s or not wordDict:
+            return False
+        dp = [False] * (len(s) + 1)
+        dp[0] = True
+        hs = set(wordDict)
+        for i in range(len(s)):
+            for j in range(i - 1, -2, -1): # j need to reach -1
+                if dp[j + 1] and s[j + 1: i + 1] in hs:
+                    dp[i + 1] = True
+        return dp[-1]
+
+    def wordBreak140(self, s: str, wordDict: List[str]) -> List[str]:
+        # dfs while memo from bottom up, so
+        #  b..x...catsdogs
+        #  a....y.catsdogs
+        # so when the first dfs has record catsdogs can be broken down to a list, the second dfs can immediately reuse
+        # bottom up dfs reuse results of bottom solution, stored in a hm
+        def dfs(s) -> List[str]:
+            if not s:
+                return ['']
+            if s in hm:
+                return hm[s]
+            res = []
+            for i in range(1, len(s) + 1):
+                x = s[:i]
+                if x in hs:
+                    rem = dfs(s[i:])
+                    for r in rem:
+                        res.append(x + ' ' + r if r else x)
+            hm[s] = res
+            return res
+
+        if not s or not wordDict:
+            return []
+        hs = set(wordDict)
+        hm = {}
+        return dfs(s)
+
+
+
+
+
 
 
 

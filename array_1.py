@@ -1168,39 +1168,3 @@ class Solution:
                     o += 2
                 A[e], A[o] = A[o], A[e]
         return A
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                                                                                                                                                                                                                                                               gri)
-

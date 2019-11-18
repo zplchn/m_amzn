@@ -1,6 +1,6 @@
 from typing import List, Tuple
 import collections, heapq
-from reviewed.tree import TreeNode
+from tree import TreeNode
 
 
 class Codec271:
@@ -268,4 +268,91 @@ class Solution:
             else:
                 res.append(intervals[i])
         return res
+
+    def wallsAndGates286(self, rooms: List[List[int]]) -> None:
+        if not rooms or not rooms[0]:
+            return
+        q = collections.deque()
+        for i in range(len(rooms)):
+            for j in range(len(rooms[0])):
+                if rooms[i][j] == 0:
+                    q.append((i, j))
+        offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+
+        while q:
+            x, y = q.popleft()
+            for o in offsets:
+                i, j = x + o[0], y + o[1]
+                if 0 <= i < len(rooms) and 0 <= j < len(rooms[0]) and rooms[i][j] > rooms[x][y]:
+                    rooms[i][j] = rooms[x][y] + 1
+                    q.append((i, j))
+
+    def isValid20(self, s: str) -> bool:
+        if not s:
+            return True
+        st = []
+        for c in s:
+            if c in '([{':
+                st.append(c)
+            else:
+                if not st:
+                    return False
+                x = st.pop()
+                if c == ')' and x != '(' or c == '}' and x != '{' or c == ']' and x != '[':
+                    return False
+        return len(st) == 0
+
+    def checkValidString678(self, s: str) -> bool:
+        if not s:
+            return True
+        # swipe twice, first time left to right, and all * count as (. use a cnt, ( + 1, ) -1. any time cnt < 0 means
+        # ) is more so return false. after finish, means left (plus converted *) is at least more than ). Second
+        # pass right to left, and treat all * as ). anytime cnt < 0 means left is more. *((). once done,
+        # means right is at least more than left. So there must exist a solution.
+        cnt = 0
+        for i in range(len(s)):
+            if s[i] == '(' or s[i] == '*':
+                cnt += 1
+            else:
+                cnt -= 1
+            if cnt < 0:
+                return False
+        if cnt == 0:
+            return True
+        cnt = 0
+        for i in range(len(s) - 1, -1, -1):
+            if s[i] == ')' or s[i] == '*':
+                cnt += 1
+            else:
+                cnt -= 1
+            if cnt < 0:
+                return False
+        return True
+
+    def wordBreak140(self, s: str, wordDict: List[str]) -> List[str]:
+        # dfs while memo from bottom up, so
+        #  b..x...catsdogs
+        #  a....y.catsdogs
+        # so when the first dfs has record catsdogs can be broken down to a list, the second dfs can immediately reuse
+        # bottom up dfs reuse results of bottom solution, stored in a hm
+        def dfs(s) -> List[str]:
+            if not s:
+                return ['']
+            if s in hm:
+                return hm[s]
+            res = []
+            for i in range(1, len(s) + 1):
+                x = s[:i]
+                if x in hs:
+                    rem = dfs(s[i:])
+                    for r in rem:
+                        res.append(x + ' ' + r if r else x)
+            hm[s] = res
+            return res
+
+        if not s or not wordDict:
+            return []
+        hs = set(wordDict)
+        hm = {}
+        return dfs(s)
 

@@ -75,6 +75,23 @@ class Solution:
                 num = 0 #dont forget to reset whenever meet a new op
         return sum(st)
 
+    def mySqrt(self, x: int) -> int:
+        if x <= 1:
+            return x
+        l, r = 1, x // 2 # sqrt cannot be larger than N / 2
+        while l <= r:
+            m = l + ((r - l) >> 1)
+            t = m * m
+            if t == x:
+                return m
+            elif t < x:
+                l = m + 1
+            else:
+                r = m - 1
+        return r
+
+
+
 
 
 
