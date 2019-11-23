@@ -1,3 +1,6 @@
+from typing import List
+
+
 class Solution:
     def isPowerOfFour(self, num: int) -> bool:
         # bit 1 in odd position. 0xff is 1 byte / 8 bits
@@ -89,6 +92,35 @@ class Solution:
             else:
                 r = m - 1
         return r
+
+    def myPow(self, x: float, n: int) -> float:
+        if n < 0:
+            return 1 / self.myPow(x, -n)
+        res = 1
+        while n:
+            if n % 2 == 1:
+                res *= x
+            x *= x
+            n //= 2
+        return res
+
+    def prisonAfterNDays957(self, cells: List[int], N: int) -> List[int]:
+        # as there are 6 digit 0 or 1, so total is 2 ^ 6 = 64 stats. so when N is large, it will repeat. and we need
+        # to find the loop length, record in a hm
+        res = []
+        if not cells or N <= 0:
+            return res
+        hm = {}
+        hm[tuple(cells)] = N
+        while N:
+            N -= 1
+            c2 = [int(0 < i < 7 and cells[i - 1] == cells[i + 1]) for i in range(8)]
+            t = tuple(c2)
+            if t in hm:
+                N %= hm[t] - N # after N % len,N will only small than the len and % will only be N.
+            hm[t] = N
+            cells = c2
+        return cells
 
 
 

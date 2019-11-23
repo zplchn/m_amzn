@@ -1,5 +1,6 @@
 from typing import List
 
+
 class Solution:
     def letterCombinations(self, digits):
         letter_dict = {'2': ['a', 'b', 'c'],
@@ -314,6 +315,37 @@ class Solution:
             return res
         dfs(0, 0, [])
         return res
+
+    def canPartitionKSubsets698(self, nums: List[int], k: int) -> bool:
+        # recursion to find k some array with sum = sum_all / k
+        def dfs(start: int, pre: int, k: int) -> bool:
+            if k == 1:
+                return True
+            if pre == sumv:
+                return dfs(0, 0, k - 1)
+            res = False
+            for i in range(start, len(nums)):
+                if visited[i]:
+                    continue
+                if pre + nums[i] <= sumv:
+                    visited[i] = True
+                    res = dfs(i + 1, pre + nums[i], k)
+                    visited[i] = False
+                    if res:
+                        break
+                else:
+                    break
+            return res
+
+        if not nums or k <= 0:
+            return False
+        sumv = sum(nums)
+        if sumv % k != 0:
+            return False
+        sumv //= k
+        visited = [False] * len(nums)
+        nums.sort()
+        return dfs(0, 0, k)
 
 
 

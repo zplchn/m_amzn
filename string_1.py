@@ -425,7 +425,37 @@ class Solution:
                 res.append(i - len(p) + 1)
         return res
 
-    def multiply(self, num1: str, num2: str) -> str:
+    def strStr(self, haystack: str, needle: str) -> int:
+        if not needle: # only when needle is empty, return 0
+            return 0
+        lh, ln = len(haystack), len(needle)
+        for i in range(lh - ln + 1):
+            j = 0
+            while j < ln:
+                if haystack[i + j] != needle[j]:
+                    break
+                j += 1
+            if j == ln:
+                return i
+        return -1
+
+    def compress443(self, chars: List[str]) -> int:
+        if not chars:
+            return 0
+        i = j = w = 0
+        while i < len(chars):
+            while j < len(chars) and chars[j] == chars[i]:
+                j += 1
+            chars[w] = chars[i]
+            w += 1
+            if j > i + 1:
+                n = str(j - i)
+                chars[w:w + len(n)] = list(n)  # str cannod do assignment. only list can
+                w += len(n)
+            i = j
+        return w
+
+
 
 
 

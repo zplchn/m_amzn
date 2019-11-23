@@ -1,4 +1,39 @@
 from typing import List
+import collections
+
+
+class TimeMap981:
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.hm = collections.defaultdict(list)
+
+    def set(self, key: str, value: str, timestamp: int) -> None:
+        self.hm[key].append((timestamp, value))
+
+    def get(self, key: str, timestamp: int) -> str:
+        if key not in self.hm:
+            return ''
+        values = self.hm[key]
+        l, r = 0, len(values) - 1
+        if timestamp < values[l][0]:
+            return ''
+        elif timestamp >= values[r][0]:
+            return values[r][1]
+
+        while l < r:
+            m = l + ((r - l) >> 1)
+            if values[m][0] == timestamp:
+                return values[m][1]
+            elif values[m][0] < timestamp:
+                l += 1
+            else:
+                r -= 1
+        return values[r][1] if r >= 0 else '' # r could be -1
+
+
 
 class Solution:
     def search1(self, A, target):

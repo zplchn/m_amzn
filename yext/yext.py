@@ -356,3 +356,75 @@ class Solution:
         hm = {}
         return dfs(s)
 
+    def max_heapify(self, root: TreeNode):
+        # bottom up. every time swap a bigger value with root. ****but the swap could break sub trees that are already
+        # heapified.
+        '''
+
+                3
+            5       2
+        100   10
+
+        after first move
+
+                3
+            100    2
+          5     10
+
+        next move
+                100
+            3           2
+
+        5       10
+
+        so a swap in the upper level could break a sub tree, so, need to run heapify again for the subtree impacted
+        :param root:
+        :return:
+        '''
+
+        if not root:
+            return
+        self.max_heapify(root.left)
+        self.max_heapify(root.right)
+
+        if (root.left is None or root.val >= root.left.val) and (root.right is None or root.val >= root.right.val):
+            return
+
+        max_node = root.left
+        if not root.left:
+            max_node = root.right
+        elif root.right and root.right.val > root.left.val:
+            max_node = root.right
+
+        max_node.val, root.val = root.val, max_node.val
+
+        if max_node == root.left:
+            self.max_heapify(root.left)
+        else:
+            self.max_heapify(root.right)
+
+
+def print_tree(root: TreeNode) -> None:
+    if not root:
+        print('#')
+        return
+    print(root.val)
+    print_tree(root.left)
+    print_tree(root.right)
+
+s = Solution()
+root = TreeNode(3)
+root.left = TreeNode(5)
+root.right = TreeNode(2)
+root.left.left = TreeNode(100)
+root.left.right = TreeNode(10)
+print('before')
+print_tree(root)
+
+print('after')
+s.max_heapify(root)
+print_tree(root)
+
+
+
+

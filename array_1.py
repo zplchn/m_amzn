@@ -29,20 +29,6 @@ class Solution384:
 
 class Solution:
 
-    class MovingAverage:
-
-        def __init__(self, size: int):
-            self.size = size
-            self.sum = 0
-            self.q = collections.deque()
-
-        def next(self, val: int) -> float:
-            if len(self.q) ==  self.size:
-                self.sum -= self.q.popleft()
-            self.sum += val
-            self.q.append(val)
-            return self.sum // len(self.q)
-
     class MyQueue:
 
         def __init__(self):
@@ -148,7 +134,7 @@ class Solution:
             """
             Add the number to an internal data structure..
             """
-            self.hm.update([number]) #update must be a iterable
+            self.hm[number] += 1
 
         def find(self, value: int) -> bool:
             """
@@ -159,63 +145,6 @@ class Solution:
                 if x != y and y in self.hm or x == y and self.hm[x] > 1: # hm[] for nonexist key will not throw
                     return True
             return False
-
-    class MyCircularQueue:
-        # tail always be the next insertion point, head always the head. circular just need to mod the size and
-        # everything else would be the same as non-circular
-        def __init__(self, k: int):
-            """
-            Initialize your data structure here. Set the size of the queue to be k.
-            """
-            self.k = k
-            self.size = 0
-            self.q = [0 for _ in range(k)]
-            self.head = self.tail = 0
-
-        def enQueue(self, value: int) -> bool:
-            """
-            Insert an element into the circular queue. Return true if the operation is successful.
-            """
-            if self.isFull():
-                return False
-            self.q[self.tail] = value
-            self.tail = (self.tail + 1) % self.k
-            self.size += 1
-            return True
-
-        def deQueue(self) -> bool:
-            """
-            Delete an element from the circular queue. Return true if the operation is successful.
-            """
-            if self.isEmpty():
-                return False
-            self.head = (self.head + 1) % self.k
-            self.size -= 1
-            return True
-
-        def Front(self) -> int:
-            """
-            Get the front item from the queue.
-            """
-            return self.q[self.head] if not self.isEmpty() else -1
-
-        def Rear(self) -> int:
-            """
-            Get the last item from the queue.
-            """
-            return self.q[self.tail - 1] if not self.isEmpty() else -1
-
-        def isEmpty(self) -> bool:
-            """
-            Checks whether the circular queue is empty or not.
-            """
-            return self.size == 0
-
-        def isFull(self) -> bool:
-            """
-            Checks whether the circular queue is full or not.
-            """
-            return self.size == self.k
 
     class MaxStack:
 
@@ -275,31 +204,6 @@ class Solution:
     #        :rtype List[NestedInteger]
     #        """
 
-    class NestedIterator(object):
-
-        def __init__(self, nestedList):
-            """
-            Initialize your data structure here.
-            :type nestedList: List[NestedInteger]
-            """
-            self.st = list(reversed(nestedList))
-
-        def next(self):
-            """
-            :rtype: int
-            """
-            return self.st.pop()
-
-        def hasNext(self):
-            """
-            :rtype: bool
-            """
-            while self.st:
-                if self.st[-1].isInteger():
-                    return True
-                t = reversed(self.st.pop().getList())
-                self.st.extend(t)
-            return False
 
     class Vector2D:
 
@@ -320,39 +224,6 @@ class Solution:
                     self.r, self.c = self.r + 1, 0
             return False
 
-    class ZigzagIterator(object):
-
-        def __init__(self, v1, v2):
-            """
-            Initialize your data structure here.
-            :type v1: List[int]
-            :type v2: List[int]
-            """
-            self.vecs = [v1, v2]
-            self.q = collections.deque()
-            # iter1, iter2 = iter(v1), iter(v2) Python iterator only has one function that is next()
-            if v1:
-                self.q.append((0, 0))
-            if v2:
-                self.q.append((1, 0))
-
-
-        def next(self):
-            """
-            :rtype: int
-            """
-            v, c = self.q.popleft()
-            x = self.vecs[v][c]
-            c += 1
-            if c < len(self.vecs[v]):
-                self.q.append((v, c))
-            return x
-
-        def hasNext(self):
-            """
-            :rtype: bool
-            """
-            return len(self.q) > 0
 
     class MyHashMap:
         # a number % 1000 and // 1000 then can uniquely map the number itself
@@ -1168,3 +1039,22 @@ class Solution:
                     o += 2
                 A[e], A[o] = A[o], A[e]
         return A
+
+    def getHint299(self, secret: str, guess: str) -> str:
+        # 1101 2112
+        c = collections.Counter(guess)
+        a, b = 0, 0
+        for i in range(len(secret)):
+            if secret[i] == guess[i]:
+                a += 1
+                c[secret[i]] -= 1
+        for i in range(len(secret)):
+            if secret[i] != guess[i]:
+                if c[secret[i]] > 0:
+                    b += 1
+                    c[secret[i]] -= 1
+        return '%dA%dB' % (a, b)
+
+
+
+

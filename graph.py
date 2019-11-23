@@ -1,6 +1,13 @@
 import collections
 from typing import List
 
+
+class Node:
+    def __init__(self, val, neighbors):
+        self.val = val
+        self.neighbours = neighbors
+
+
 class Solution:
     def canFinish(self, numCourses, prerequisites):
         if numCourses <= 1:
@@ -261,6 +268,33 @@ class Solution:
                 return e
             roots[ra] = rb
         return []
+
+    def cloneGraph133(self, node: 'Node') -> 'Node':
+        hm = {}
+        hm[node] = Node(node.val, [])
+        q = collections.deque([node])
+        while q:
+            x = q.popleft()
+            for n in x.neighbors:
+                if n not in hm:
+                    hm[n] = Node(n.val, [])
+                    q.append(n)
+                hm[x].neighbors.append(hm[n])
+        return hm[node]
+
+    def findJudge997(self, N: int, trust: List[List[int]]) -> int:
+        # convert problem into find a node in graph, indegree = N - 1 and adjacency list empty
+        indegrees = [0] * (N + 1)
+        outdegrees = [0] * (N + 1)
+        for i, j in trust:
+            indegrees[j] += 1
+            outdegrees[i] = 1
+        for i in range(1, len(indegrees)):
+            if indegrees[i] == N - 1 and outdegrees[i] == 0:
+                return i
+        return -1
+
+
 
 
 

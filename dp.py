@@ -6,6 +6,34 @@ class TreeNode:
         self.val = x
         self.left = self.right = None
 
+
+class NumArray303:
+
+    def __init__(self, nums: List[int]):
+        self.dp = [0] * (len(nums) + 1)
+        for i in range(len(nums)):
+            self.dp[i + 1] = self.dp[i] + nums[i]
+
+    def sumRange(self, i: int, j: int) -> int:
+        return self.dp[j + 1] - self.dp[i]
+
+class NumMatrix304:
+
+    def __init__(self, matrix: List[List[int]]):
+        if not matrix or not matrix[0]:
+            self.dp = None
+            return
+        self.dp = [[0] * (len(matrix[0]) + 1) for _ in range(len(matrix) + 1)]
+
+        for i in range(len(matrix)):
+            for j in range(len(matrix[0])):
+                self.dp[i + 1][j + 1] = self.dp[i][j + 1] + self.dp[i + 1][j] - self.dp[i][j] + matrix[i][j]
+
+    def sumRegion(self, row1: int, col1: int, row2: int, col2: int) -> int:
+        if not self.dp:
+            return 0
+        return self.dp[row2 + 1][col2 + 1] - self.dp[row1][col2 + 1] - self.dp[row2 + 1][col1] + self.dp[row1][col1]
+
 class Solution:
 
     def wordBreak(self, s, dict):
@@ -127,6 +155,54 @@ class Solution:
         hs = set(wordDict)
         hm = {}
         return dfs(s)
+
+    def maximalSquare221(self, matrix: List[List[str]]) -> int:
+        '''
+
+        use dp, and dp[i][j] means the max square length can formed by use the current number as bottom right of a
+        square. then the subproblem is up, left and up left, the minimum of the 3, then + 1, if the current num is 1
+
+        2  2x  2x
+        2y 2xy 2x
+        2y 2y  == 3
+
+        :param matrix:
+        :return:
+        '''
+        if not matrix or not matrix[0]:
+            return 0
+        dp = [[0] * len(matrix[0]) for _ in range(len(matrix))]
+        maxv = 0
+        for i in range(len(matrix)):
+            for j in range(len(matrix[0])):
+                if i == 0 or j == 0:
+                    dp[i][j] = int(matrix[i][j])
+                elif matrix[i][j] == '1':
+                    dp[i][j] = min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]) + 1
+                maxv = max(maxv, dp[i][j])
+        return maxv ** 2
+
+    def coinChange322(self, coins: List[int], amount: int) -> int:
+        # subproblem is at current amount N, use coins 1, 2, 5, convert to dp [N - coins[j]] problem and take the mind
+        if not coins or amount <= 0:
+            return 0
+        coins.sort()
+        # we init to N + 1 for each i then at end can check if a solution, note is's amount + 1 not i + 1
+        dp = [amount + 1 for _ in range(amount + 1)]
+        # exist
+        dp[0] = 0
+        for i in range(1, amount + 1):
+            for c in coins:
+                if c > i:
+                    break
+                dp[i] = min(dp[i], dp[i - c] + 1)
+        return dp[-1] if dp[-1] <= amount else -1
+
+
+
+
+
+
 
 
 

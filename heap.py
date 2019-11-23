@@ -125,5 +125,21 @@ class Solution:
                 push(x + 1, y)
         return -1 if k > 0 else v
 
+    def kClosest(self, points: List[List[int]], K: int) -> List[List[int]]:
+        if not points or K <= 0:
+            return []
+        return heapq.nsmallest(K, points, key=lambda l: l[0] ** 2 + l[1] ** 2)
+
+    def lastStoneWeight1046(self, stones: List[int]) -> int:
+        if not stones:
+            return 0
+        heap = [-x for x in stones]
+        heapq.heapify(heap)
+        while len(heap) > 1:
+            y, x = heapq.heappop(heap), heapq.heappop(heap)
+            if y != x:
+                heapq.heappush(heap, y - x)
+        return -heapq.heappop(heap) if heap else 0
+
 
 

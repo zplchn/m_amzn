@@ -986,6 +986,35 @@ class Solution:
         dfs(root, 0)
         return res
 
+    def postorderTraversal145(self, root: TreeNode) -> List[int]:
+        if not root:
+            return []
+        st = []
+        res = []
+        pre = None
+        while root or st:
+            if root:
+                st.append(root)
+                root = root.left
+            else:
+                if st[-1].right and pre != st[-1].right:
+                    root = st[-1].right
+                else:
+                    pre = st.pop()
+                    res.append(pre.val)
+        return res
+
+    def postorder590(self, root: 'Node') -> List[int]:
+        def dfs(root: Node) -> None:
+            if not root:
+                return
+            for c in root.children:
+                dfs(c)
+            res.append(root.val)
+
+        res = []
+        dfs(root)
+        return res
 
 
 
