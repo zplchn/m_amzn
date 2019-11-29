@@ -198,6 +198,82 @@ class Solution:
                 dp[i] = min(dp[i], dp[i - c] + 1)
         return dp[-1] if dp[-1] <= amount else -1
 
+    def findDerangement634(self, n: int) -> int:
+        '''
+        use dp[i] to denote given i numbers, # of dearrangement. dp[1] = 0 dp[2] = 1 which is [2,1]
+        Look at n = 4. suppose we put 4 to 3rd position xx4x. if we put 3 at last x, then it becomes dp[2] problem.
+        if we cannot put 3 at last x, then it becomes xx x problem when last x cannot be 3, so it's dp[3] problem.
+        and overrall there are 3 positions we can put 4. so dp[i] = (i - 1) * (dp[i-1] + dp[i - 2])
+        '''
+        dp = [0] * (n + 1)
+        dp[2] = 1
+        for i in range(3, n + 1):
+            dp[i] = (i - 1) * (dp[i - 1] + dp[i - 2])
+        return dp[-1]
+
+    def climbStairs(self, n: int) -> int:
+        if n <= 2:
+            return n
+        dp = [1, 2]
+        x = 0
+        for i in range(3, n + 1):
+            x = dp[0] + dp[1]
+            dp[0], dp[1] = dp[1], x
+        return x
+
+    def mincostTickets983(self, days: List[int], costs: List[int]) -> int:
+        # dp. f = min cost at day x. so f = subproblems min(buy 1 day pass at i and dp[i - 1],
+        # buy 7-day pass 7 days ago + dp[i - 7], buy 30 day pass 30 days ago + dp[i - 30])
+        if not days or not costs:
+            return 0
+        last_day = days[-1]
+        dp = [0] * (last_day + 1)
+        for i in range(1, last_day + 1):
+            # for days not appear, the dp[i] will be same as dp[i - 1]
+            if i not in days:
+                dp[i] = dp[i - 1]
+            else:
+                dp[i] = min(dp[i - 1] + costs[0], dp[max(0, i - 7)] + costs[1], dp[max(0, i - 30)] + costs[2])
+        return dp[-1]
+
+    def findAllConcatenatedWordsInADict472(self, words: List[str]) -> List[str]:
+        # use wordbreak as subroutine
+        def is_concatenated(word: str) -> bool:
+            hs.remove(w)
+            dp = [False] * (len(word) + 1)
+            dp[0] = True
+            for j in range(len(word)):
+                for i in reversed(range(j + 1)):
+                    if word[i:j + 1] in hs and dp[i]:
+                        dp[j + 1] = True
+                        break # as soon as find the word is breakable, should break
+            hs.add(w)
+            return dp[-1]
+
+        if not words:
+            return words
+        res = []
+        hs = set(words)
+
+        for w in words:
+            if w == '':
+                continue
+
+            if is_concatenated(w):
+                res.append(w)
+
+        return res
+
+    def fib(self, N: int) -> int:
+        if N <= 1:
+            return N
+        dp = [0, 1]
+        for i in range(2, N + 1):
+            x = dp[0] + dp[1]
+            dp[0], dp[1] = dp[1], x
+        return dp[1]
+
+
 
 
 

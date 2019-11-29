@@ -1,5 +1,5 @@
 from typing import List
-
+import collections
 
 class Solution:
     def letterCombinations(self, digits):
@@ -346,6 +346,137 @@ class Solution:
         visited = [False] * len(nums)
         nums.sort()
         return dfs(0, 0, k)
+
+    def hasPath490(self, maze: List[List[int]], start: List[int], destination: List[int]) -> bool:
+        offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+
+        def dfs(i: int, j: int) -> bool:
+            if i == destination[0] and j == destination[1]:
+                return True
+            maze[i][j] = -1
+
+            for o in offsets:
+                x, y = i, j
+                while 0 <= x < len(maze) and 0 <= y < len(maze[0]) and maze[x][y] != 1:
+                    x, y = x + o[0], y + o[1]
+                x, y = x - o[0], y - o[1]
+                if maze[x][y] != -1:
+                    if dfs(x, y):
+                        return True
+            return False
+
+        if not maze or not maze[0] or not start or not destination:
+            return False
+        # return dfs(start[0], start[1]) use * to unzip list type param
+        return dfs(*start)
+
+    def solveNQueens51(self, n: int) -> List[List[str]]:
+        def is_valid(cols: List[int], row: int) -> bool:
+            for i in range(row):
+                if cols[i] == cols[row] or abs(cols[i] - cols[row]) == row - i:
+                    return False
+            return True
+
+        def dfs(row: int) -> None:
+            if row == n:
+                t = []
+                for i in range(n):
+                    combi = ['.'] * n
+                    combi[cols[i]] = 'Q'
+                    t.append(''.join(combi))
+                res.append(t)
+                return
+            for i in range(n):
+                cols[row] = i
+                if is_valid(cols, row):
+                    dfs(row + 1)
+        if n < 1:
+            return []
+        cols = [0] * n
+        res = []
+        dfs(0)
+        return res
+
+    def totalNQueens52(self, n: int) -> int:
+        def is_valid(cols: List[int], row: int) -> bool:
+            for i in range(row):
+                if cols[i] == cols[row] or abs(cols[i] - cols[row]) == row - i:
+                    return False
+            return True
+
+        def dfs(row: int) -> None:
+            nonlocal res
+            if row == n:
+                res += 1
+                return
+            for i in range(n):
+                cols[row] = i
+                if is_valid(cols, row):
+                    dfs(row + 1)
+
+        if n < 1:
+            return 0
+        res = 0
+        cols = [0] * n
+        dfs(0)
+        return res
+
+    def solveSudoku37(self, board: List[List[str]]) -> None:
+        def is_valid(i, j) -> bool:
+            for x in range(9):
+                if (x != i and board[x][j] == board[i][j]) or (x != j and board[i][x] == board[i][j]):
+                    return False
+            for x in range(i // 3 * 3, i // 3 * 3 + 3):
+                for y in range(j // 3 * 3, j // 3 * 3 + 3): # note this is // not %
+                    if (not (x == i and y == j) and board[x][y] == board[i][j]):
+                        return False
+            return True
+        def dfs(i: int, j: int) -> bool:
+            if j == 9:
+                return dfs(i + 1, 0)
+            if i == 9:
+                return True
+            if board[i][j] != '.':
+                return dfs(i, j + 1)
+            for k in range(1, 10):
+                board[i][j] = str(k)
+                if is_valid(i, j):
+                    if dfs(i, j + 1):
+                        return True
+                board[i][j] = '.'  # must backtrack because the first dfs will fill till last node and is_valid also
+                # depends on the node after the current level
+            return False
+        if not board or not board[0]:
+            return
+        dfs(0, 0)
+
+    def canPartition416(self, nums: List[int]) -> bool:
+        # converts the problem of finding a combination of numbers in the list sum == sum_all // 2
+        # the reason using a counter - say there are 100 of 1s, and another random number 99. without using counter,
+        # then each dfs generate a tree, so there will be 100 trees. by using counter, only generate 2 tree,
+        # one for 1 and one for 99.
+        def dfs(x) -> bool:
+            if x == 0:
+                return True
+            if x < 0:
+                return False
+            for k in c:
+                if c[k] == 0:
+                    continue
+                c[k] -= 1
+                if dfs(x - k):
+                    return True
+                c[k] += 1
+            return False
+        if not nums:
+            return False
+        sum_all = sum(x for x in nums)
+        if sum_all % 2:
+            return False
+        c = collections.Counter(nums)
+        return dfs(sum_all // 2)
+
+
 
 
 

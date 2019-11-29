@@ -122,6 +122,45 @@ class Solution:
             cells = c2
         return cells
 
+    def intToRoman(self, num: int) -> str:
+        '''
+        Symbol       Value
+I             1
+V             5
+X             10
+L             50
+C             100
+D             500
+M             1000
+        :param num:
+        :return:
+        '''
+        rint = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+        rstr = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I']
+        res = []
+        i = 0
+        while num > 0:
+            if num >= rint[i]:
+                num -= rint[i]
+                res.append(rstr[i])
+            else:
+                i += 1
+        return ''.join(res)
+
+    def divide29(self, dividend: int, divisor: int) -> int:
+        # x divide y means check how many N of y exist in x. and a number can expressed as a series of
+        # N = a * 2 ** 31 + b * 2 ** 30 + ... + x * 2 + y. so we loop through 32 bit and check it's greater than divisor
+        if dividend == - 2 ** 31 and divisor == -1:
+            return 2 ** 31 - 1
+        res = 0
+        x, y = abs(dividend), abs(divisor)
+        for i in reversed(range(32)):
+            if x >= (y << i):
+                res += (1 << i)
+                x -= (y << i)
+        return res if (dividend >= 0) == (divisor >= 0) else -res
+
+
 
 
 

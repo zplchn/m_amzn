@@ -235,25 +235,20 @@ class Solution:
         return 1 + max(self.maxDepth(root.left), self.maxDepth(root.right))
 
     def levelOrder(self, root: TreeNode) -> List[List[int]]:
-        if root is None:
-            return []
-        q = deque([root])
-        cur, next = 1, 0
-        lc, res = [], []
+        res = []
+        if not root:
+            return res
+        q = collections.deque([root])
         while q:
-            node = q.popleft()
-            cur -= 1
-            lc.append(node.val)
-            if node.left:
-                q.append(node.left)
-                next += 1
-            if node.right:
-                q.append(node.right)
-                next += 1
-            if cur == 0:
-                cur, next = next, 0
-                res.append(lc)
-                lc = []
+            combi = []
+            for i in range(len(q)):
+                node = q.popleft()
+                combi.append(node.val)
+                if node.left:
+                    q.append(node.left)
+                if node.right:
+                    q.append(node.right)
+            res.append(combi)
         return res
 
     def levelOrderBottom(self, root: TreeNode) -> List[List[int]]:

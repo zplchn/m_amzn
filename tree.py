@@ -172,6 +172,39 @@ class WordDictionary:
                 return any(dfs(node.children[k], i + 1) for k in node.children)
         return dfs(self.root, 0)
 
+
+class MyCalendar729:
+    # use a bst to simulate the treemap in java and achieve o nlogn avg
+    class Node:
+        def __init__(self, start, end):
+            self.start = start
+            self.end = end
+            self.left = self.right = None
+
+    def __init__(self):
+        self.root = None
+
+    def book(self, start: int, end: int) -> bool:
+        def dfs(root) -> bool:
+            if start >= root.end:
+                if root.right:
+                    return dfs(root.right)
+                else:
+                    root.right = self.Node(start, end)
+                    return True
+            elif end <= root.start:
+                if root.left:
+                    return dfs(root.left)
+                else:
+                    root.left = self.Node(start, end)
+                    return True
+            else:
+                return False
+        if not self.root:
+            self.root = self.Node(start, end)
+            return True
+        return dfs(self.root)
+
 class Solution:
     def serialize(self, root):
         def dfs(root, res):
@@ -1015,6 +1048,209 @@ class Solution:
         res = []
         dfs(root)
         return res
+
+    def maxLevelSum1161(self, root: TreeNode) -> int:
+        if not root:
+            return 0
+        q = collections.deque([root])
+        l = 1
+        maxv = root.val
+        res = 1
+        while q:
+            sumv = 0
+            for i in range(len(q)):
+                node = q.popleft()
+                sumv += node.val
+                if node.left:
+                    q.append(node.left)
+                if node.right:
+                    q.append(node.right)
+            if sumv > maxv:
+                maxv = sumv
+                res = l
+            l += 1
+
+        return res
+
+    def maxDepth(self, root: 'Node') -> int:
+        if not root:
+            return 0
+        return max((self.maxDepth(x) for x in root.children), default=0) + 1 # max needs default value if empty
+
+    def countUnivalSubtrees250(self, root: TreeNode) -> int:
+        def dfs(root: TreeNode) -> bool:
+            nonlocal res
+            if not root:
+                return True
+            lv = dfs(root.left)
+            rv = dfs(root.right) # do not combine in the if because then right dfs might be short circuited
+            if lv and rv and (root.left is None or root.left.val == root.val) and (
+                    root.right is None or root.right.val == root.val):
+                res += 1
+                return True
+            return False
+
+        if not root:
+            return 0
+        res = 0
+        dfs(root)
+        return res
+
+    def findDuplicateSubtrees652(self, root: TreeNode) -> List[TreeNode]:
+        # we need a hm to store the value + structure, so need serialization. the serialzied string is preorder but,
+        # we use post order to get subtrees first
+        def dfs(root: TreeNode) -> str:
+            if not root:
+                return '#'
+            lv = dfs(root.left)
+            rv = dfs(root.right)
+            cur = str(root.val) + lv + rv
+            if hm[cur] == 1: # only output one of the duplicate
+                res.append(root)
+            hm[cur] += 1
+            return cur
+
+        if not root:
+            return []
+        res = []
+        hm = collections.defaultdict(int)
+        dfs(root)
+        return res
+
+    def verticalTraversal987(self, root: TreeNode) -> List[List[int]]:
+        def dfs(root: TreeNode, x: int, l: int) -> None:
+            if not root:
+                return
+            hm[x].append((l, root.val))
+            dfs(root.left, x - 1, l + 1)
+            dfs(root.right, x + 1, l + 1)
+
+        if not root:
+            return []
+        hm = collections.defaultdict(list)
+        dfs(root, 0, 0)
+        res = []
+        for x in sorted(hm.keys()):
+            res.append([y for _, y in sorted(hm[x])])
+        return res
+
+    def findTarget653(self, root: TreeNode, k: int) -> bool:
+        def dfs(root: TreeNode) -> bool:
+            if not root:
+                return False
+            if k - root.val in hs:
+                return True
+            hs.add(root.val)
+            return dfs(root.left) or dfs(root.right)
+
+        if not root:
+            return False
+        hs = set()
+        return dfs(root)
+
+    def largestBSTSubtree333(self, root: TreeNode) -> int:
+        def dfs(root: TreeNode):
+            nonlocal maxv
+            if not root:
+                return True, 0, float('inf'), float('-inf') # is_bst, # of nodes, minv, maxv
+            lb, ln, lmin, lmax = dfs(root.left)
+            rb, rn, rmin, rmax = dfs(root.right)
+            if lb and rb and lmax < root.val < rmin: # note none root return -infinity as maxv and +inf as minv
+                size = ln + rn + 1
+                maxv = max(maxv, size)
+                return True, size, min(lmin, root.val), max(rmax, root.val)
+            return False, 0, float('inf'), float('-inf')
+
+        if not root:
+            return 0
+        maxv = 1
+        dfs(root)
+        return maxv
+
+    def convertBST538(self, root: TreeNode) -> TreeNode:
+        # think inorder traversal from right to left, then it's keep a accumulate sum and add to the node
+        def dfs(root: TreeNode) -> None:
+            nonlocal sumv
+            if not root:
+                return
+            dfs(root.right)
+            root.val += sumv
+            # sumv += root.val now root.val is already the sum
+            sumv = root.val
+            dfs(root.left)
+        sumv = 0
+        dfs(root)
+        return root
+
+    def maxAncestorDiff1026(self, root: TreeNode) -> int:
+        def dfs(root: TreeNode, minv: int, maxv: int) -> int:
+            if not root:
+                return maxv - minv # when at leaf or edge, do the math
+            maxv = max(root.val, maxv)
+            minv = min(root.val, minv)
+            return max(dfs(root.left, minv, maxv), dfs(root.right, minv, maxv))
+        if not root:
+            return 0
+        return dfs(root, root.val, root.val)
+
+    def maximumAverageSubtree1120(self, root: TreeNode) -> float:
+        def dfs(root: TreeNode):
+            nonlocal maxv
+            if not root:
+                return 0, 0
+            lsum, lcnt = dfs(root.left)
+            rsum, rcnt = dfs(root.right)
+            tsum = lsum + rsum + root.val
+            tcnt = lcnt + rcnt + 1
+            maxv = max(maxv, tsum / tcnt)
+            return tsum, tcnt
+        if not root:
+            return 0
+        # maxv = root.val cannot init to root.val as 10 -> 1. the avg cannot be = 10, it has to be avg'd
+        maxv = float('-inf')
+        dfs(root)
+        return maxv
+
+    def twoSumBSTs1214(self, root1: TreeNode, root2: TreeNode, target: int) -> bool:
+        def convert_tree(root):
+            if not root:
+                return
+            hs.add(root.val)
+            convert_tree(root.left)
+            convert_tree(root.right)
+
+        def search_tree(root) -> bool:
+            if not root:
+                return False
+            if target - root.val in hs:
+                return True
+            return search_tree(root.left) or search_tree(root.right)
+
+        if not root1 or not root2:
+            return False
+        # convert one tree to set and then traverse another and check two sum
+        hs = set()
+        convert_tree(root1)
+        return search_tree(root2)
+
+    def bstToGst1038(self, root: TreeNode) -> TreeNode:
+        def dfs(root: TreeNode) -> None:
+            nonlocal sumv
+            if not root:
+                return
+            dfs(root.right)
+            if sumv == float('-inf'):
+                sumv = root.val
+            else:
+                root.val = sumv
+                sumv += root.val
+            dfs(root.left)
+        if not root:
+            return root
+        sumv = float('-inf')
+        dfs(root)
+        return root
+
 
 
 

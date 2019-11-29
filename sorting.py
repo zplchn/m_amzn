@@ -1,6 +1,6 @@
 from typing import List
 import random
-
+import collections
 
 class ListNode:
     def __init__(self, val):
@@ -70,3 +70,24 @@ class Solution:
             return (0, rest, key) if rest[0].isalpha() else (1,)
 
         return sorted(logs, key=custom_sort)
+
+    def relativeSortArray1122(self, arr1: List[int], arr2: List[int]) -> List[int]:
+        if not arr1 or not arr2:
+            return []
+        hm = {v: i for i, v in enumerate(arr2)}
+        return sorted(arr1, key= lambda x: hm.get(x, 10000 + x)) # since range for x is less than 1000
+
+    def highFive1086(self, items: List[List[int]]) -> List[List[int]]:
+        if not items:
+            return []
+        hm = collections.defaultdict(list)
+        minid, maxid = float('inf'), 0
+        for id, s in items:
+            hm[id].append(s)
+            minid, maxid = min(id, minid), max(id, maxid)
+        res = []
+        for id in range(minid, maxid + 1):
+            if id in hm:
+                res.append([id, sum(sorted(hm[id], reverse=True)[:5]) // 5])
+        return res
+

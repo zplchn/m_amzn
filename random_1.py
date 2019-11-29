@@ -1,5 +1,34 @@
 import random
+import string
 
+class Codec535:
+
+    strs = string.ascii_letters + '0123456789'
+
+    def __init__(self):
+        self.urltocode = {}
+        self.codetourl = {}
+
+    def encode(self, longUrl):
+        """Encodes a URL to a shortened URL.
+
+        :type longUrl: str
+        :rtype: str
+        """
+        while longUrl not in self.urltocode:
+            code = ''.join(random.sample(self.strs, 6)) # (52 + 10) ** 6 = 56 billion chance of collision
+            if code not in self.codetourl:
+                self.urltocode[longUrl] = code
+                self.codetourl[code] = longUrl
+        return self.urltocode[longUrl]
+
+    def decode(self, shortUrl):
+        """Decodes a shortened URL to its original URL.
+
+        :type shortUrl: str
+        :rtype: str
+        """
+        return self.codetourl[shortUrl[-6:]]
 
 class RandomizedSet380:
 

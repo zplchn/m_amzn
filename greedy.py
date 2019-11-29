@@ -1,5 +1,6 @@
 from typing import List
 import heapq
+import collections
 
 
 class Solution:
@@ -66,5 +67,53 @@ class Solution:
                 end = points[i][1]
                 res += 1
         return res
+
+    def canPlaceFlowers605(self, flowerbed: List[int], n: int) -> bool:
+        # take entire 3 as a window to decide
+        if not flowerbed:
+            return False
+        if n == 0:
+            return True
+        for i, v in enumerate(flowerbed):
+            if v == 0 and (i == 0 or flowerbed[i - 1] == 0) and (i == len(flowerbed) - 1 or flowerbed[i + 1] == 0):
+                flowerbed[i] = 1
+                n -= 1
+                if n == 0:
+                    break
+        return n == 0
+
+    def canJump55(self, nums: List[int]) -> bool:
+        if not nums:
+            return False
+        i = reach = 0
+        while i <= reach and i < len(nums):
+            reach = max(reach, nums[i] + i)
+            i += 1
+        return i == len(nums)
+
+    def carPooling1094(self, trips: List[List[int]], capacity: int) -> bool:
+        c = collections.Counter()
+        for n, start, end in trips:
+            c[start] += n
+            c[end] -= n
+        # must traverse in the order each key point is visited left to right
+        size = 0
+        for k in sorted(c): # this returns the key in sorted order
+            size += c[k]
+            if size > capacity:
+                return False
+        return True
+
+    def jump45(self, nums: List[int]) -> int:
+        if not nums:
+            return 0
+        last_reach = reach = i = steps = 0
+        while i <= reach and i < len(nums):
+            if i > last_reach:
+                steps += 1
+                last_reach = reach
+            reach = max(reach, nums[i] + i)
+            i += 1
+        return steps if reach >= len(nums) - 1 else -1
 
 

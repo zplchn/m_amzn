@@ -165,6 +165,59 @@ class Solution:
                 combi += x
         return combi
 
+    def asteroidCollision735(self, asteroids: List[int]) -> List[int]:
+        if not asteroids:
+            return []
+        res = []
+        i = 0
+        while i < len(asteroids): # for i in range(3) -> generator always give a new i so cannot change i within loop
+            if asteroids[i] > 0 or not res or res[-1] < 0:
+                res.append(asteroids[i])
+            elif -asteroids[i] == res[-1]:
+                res.pop()
+            elif -asteroids[i] > res[-1]:
+                res.pop()
+                i -= 1
+            i += 1
+        return res
+
+    def dailyTemperatures739(self, T: List[int]) -> List[int]:
+        if not T:
+            return []
+        res = [0] * len(T)
+        st = []
+        for i in range(len(T)):
+            while st and T[st[-1]] < T[i]:
+                l = st.pop()
+                res[l] = i - l
+            st.append(i)
+        return res
+
+    def exclusiveTime636(self, n: int, logs: List[str]) -> List[int]:
+        # this simulate a code stack, new func will preempt and exe, and will end first. then background func will
+        # resume
+        if n < 1 or not logs:
+            return []
+        res = [0] * n
+        st = []
+        pre = 0
+        for l in logs:
+            id, type, ts = l.split(':')
+            id, ts = int(id), int(ts)
+            if type == 'start':
+                if st:
+                    # i = st.pop()
+                    i = st[-1]
+                    res[i] += ts - pre
+                pre = ts
+                st.append(id)
+            else:
+                i = st.pop()
+                res[i] += ts - pre + 1
+                pre = ts + 1
+        return res
+
+
 
 
 

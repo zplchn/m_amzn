@@ -169,6 +169,29 @@ class Solution:
             res.append(q.popleft().val)
         return res
 
+    def updateMatrix542(self, matrix: List[List[int]]) -> List[List[int]]:
+        if not matrix or not matrix[0]:
+            return []
+        q = collections.deque()
+        for i in range(len(matrix)):
+            for j in range(len(matrix[0])):
+                if matrix[i][j] == 0:
+                    q.append((i, j))
+                else:
+                    matrix[i][j] = float('inf')
+        offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        while q:
+            i, j = q.popleft()
+            for o in offsets:
+                x, y = i + o[0], j + o[1]
+                if 0 <= x < len(matrix) and 0 <= y < len(matrix[0]) and matrix[x][y] > matrix[i][j] + 1:
+                    matrix[x][y] = matrix[i][j] + 1
+                    q.append((x, y))
+        return matrix
+
+
+
+
 
 
 

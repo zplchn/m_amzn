@@ -145,6 +145,28 @@ class Solution:
                 r = m - 1
         return False
 
+    def search702(self, reader, target):
+        # we can think this problem is an array start from index 0 [1,2,3....end, INF, INF, INF] end somewhere and
+        # then followed by all INF, and this array is still itself sorted. we just need to put the right boundary to
+        # the max int as the return type is an int. However in python there is no limit to int, we can find the right
+        # boundary first
+
+        # l, r = 0, 2147483647
+        l, r = 0, 1
+        while reader.get(r) < target:
+            r *= 2 # keep 2 exp so it's still logn
+        while l <= r:
+            m = l + ((r - l) // 2)
+            x = reader.get(m)
+            if x == target:
+                return m
+            elif target < x:
+                r = m - 1
+            else:
+                l = m + 1
+        return -1
+
+
 
 
 

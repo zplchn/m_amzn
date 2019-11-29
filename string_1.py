@@ -29,6 +29,23 @@ class Codec271:
         return res
 
 
+class LogSystem635:
+    # truncate the string at each granularity and filter "2017:01:01:23:59:59"
+
+    def __init__(self):
+        self.data = []
+
+    def put(self, id: int, timestamp: str) -> None:
+        self.data.append((id, timestamp))
+
+    truncate = {'Year': 4, 'Month': 7, 'Day': 10, 'Hour': 13, 'Minute': 16, 'Second': 19}
+
+    def retrieve(self, s: str, e: str, gra: str) -> List[int]:
+        idx = self.truncate[gra]
+        start, end = s[:idx], e[:idx]
+        return [id for id, ts in self.data if start <= ts[:idx] <= end]
+
+
 class Solution:
     def anagram(self, s, t):
         if len(s) != len(t):
@@ -454,6 +471,62 @@ class Solution:
                 w += len(n)
             i = j
         return w
+
+    def reverseVowels345(self, s: str) -> str:
+        ca = list(s)
+        vowels = 'aeiouAEIOU'
+        i, j = 0, len(ca) - 1
+        while i < j:
+            while i < j and ca[i] not in vowels:
+                i += 1
+            while i < j and ca[j] not in vowels:
+                j -= 1
+            ca[i], ca[j] = ca[j], ca[i]
+            i, j = i + 1, j - 1
+        return ''.join(ca)
+
+    def removeVowels1119(self, S: str) -> str:
+        ca = list(S)
+        w = 0
+        for r in range(len(ca)):
+            if ca[r] not in 'aeiou':
+                ca[w] = ca[r]
+                w += 1
+        return ''.join(ca[:w])
+
+    def customSortString791(self, S: str, T: str) -> str:
+        if not S or not T:
+            return ''
+        c = collections.Counter(T)
+        res = [s * c.pop(s) for s in S if s in c] # dict.pop(key) return value, delete the entry. key need exist first.
+        res.extend(k * v for k, v in c.items()) # generator is iterator is iterable
+        return ''.join(res)
+
+    def reverseStr541(self, s: str, k: int) -> str:
+        if not s or k <= 1:
+            return s
+        ca = list(s)
+        for i in range(0, len(ca), 2 * k): # step
+            ca[i: i + k] = reversed(ca[i: i + k]) # string reverse use reverse generator and slicing index wont throw
+        return ''.join(ca)
+
+    def lengthLongestPath388(self, input: str) -> int:
+        # "dir\n\tsubdir1\n\tsubdir2\n\t\tfile.ext"
+        # use a map to store depth -> sum of length, when at a file, the length of upper level is ITS upper depth
+        hm = {-1: 0}
+        res = 0
+
+        for line in input.split('\n'): # ['dir', '\tsubdir1', '\tsubdir2', '\t\tfile.ext']
+            depth = line.count('\t')
+            hm[depth] = hm[depth - 1] + len(line) - depth
+            if '.' in line:
+                res = max(res, hm[depth] + depth) # find result is a/b/xx.ext contains # of depth /
+        return res
+
+
+
+
+
 
 
 

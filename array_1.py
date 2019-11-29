@@ -27,6 +27,60 @@ class Solution384:
             self.nums[i], self.nums[j] = self.nums[j], self.nums[i]
         return self.nums
 
+
+class MyCalendarTwo731:
+
+    def __init__(self):
+        self.times = []
+        self.overlap = []
+
+    def book(self, start: int, end: int) -> bool:
+        for s, e in self.overlap:
+            if start < e and end > s: # note this is and conndition
+                return False
+        for s, e in self.times:
+            if start < e and end > s:
+                self.overlap.append((max(start, s), min(end, e)))
+        self.times.append((start, end))
+        return True
+
+
+class PeekingIterator284:
+    def __init__(self, iterator):
+        """
+        Initialize your data structure here.
+        :type iterator: Iterator
+        """
+        self.iter = iterator
+        self.has_cache = False
+        self.cache = None
+
+    def peek(self):
+        """
+        Returns the next element in the iteration without advancing the iterator.
+        :rtype: int
+        """
+        if self.has_cache:
+            return self.cache
+        self.cache = self.iter.next()
+        self.has_cache = True
+        return self.cache
+
+    def next(self):
+        """
+        :rtype: int
+        """
+        if self.has_cache:
+            self.has_cache = False
+            return self.cache
+        return self.iter.next()
+
+    def hasNext(self):
+        """
+        :rtype: bool
+        """
+        return self.has_cache or self.iter.hasNext()
+
 class Solution:
 
     class MyQueue:
@@ -1054,6 +1108,97 @@ class Solution:
                     b += 1
                     c[secret[i]] -= 1
         return '%dA%dB' % (a, b)
+
+    def findMaxConsecutiveOnes485(self, nums: List[int]) -> int:
+        if not nums:
+            return 0
+        maxv = count = 0
+        nums.append(0)
+        for x in nums:
+            if x == 1:
+                count += 1
+            else:
+                maxv = max(maxv, count)
+                count = 0
+        return maxv
+
+    def heightChecker1051(self, heights: List[int]) -> int:
+        return sum(x != y for x, y in zip(heights, sorted(heights)))
+
+    def findUnsortedSubarray581(self, nums: List[int]) -> int:
+        t = sorted(nums)
+        i, j = 0, len(t) - 1
+        while i < j and nums[i] == t[i]:
+            i += 1
+        while i < j and nums[j] == t[j]:
+            j -= 1
+        return 0 if i == j else j - i + 1
+
+    def intersect350(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        res = []
+        if not nums1 or not nums2:
+            return res
+        c = collections.Counter(nums1)
+        for x in nums2:
+            if c[x] > 0:
+                res.append(x)
+                c[x] -= 1
+        return res
+
+    def commonChars1002(self, A: List[str]) -> List[str]:
+        if not A:
+            return []
+        c = collections.Counter(A[0])
+        for i in range(1, len(A)):
+            nc = collections.Counter(A[i])
+            c &= nc
+        return list(c.elements()) # Counter.elements() return iterator, each item appear k times, k = coutner of k
+
+    def romanToInt(self, s: str) -> int:
+        hm = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+        if not s:
+            return 0
+        res = hm[s[-1]]
+        for i in reversed(range(len(s) - 1)):
+            res += hm[s[i]] if hm[s[i]] >= hm[s[i + 1]] else -hm[s[i]]
+        return res
+
+    def numPairsDivisibleBy601010(self, time: List[int]) -> int:
+        # (X + Y) % N = X % N + Y % N. so the problem convert to find two sum = 60
+        if not time:
+            return 0
+        res = 0
+        c = collections.Counter()
+        for x in time:
+            res += c[(60 - x % 60) % 60] # cornor case is [60, 60] so we need to % 60 at the end
+            c[x % 60] += 1
+        return res
+
+    def findPoisonedDuration495(self, timeSeries: List[int], duration: int) -> int:
+        # consider when an interval overlaps, the latter eat the former and leaves start_latter - start_former
+        if not timeSeries or duration <= 0:
+            return 0
+        res = 0
+        for i in range(1, len(timeSeries)):
+            res += min(timeSeries[i] - timeSeries[i - 1], duration)
+        return res + duration
+
+    def maxSubArrayLen325(self, nums: List[int], k: int) -> int:
+        # 1. it asks max array not min array, so sliding window not work 2. it ask a sum, so presum in hm should work
+        if not nums:
+            return 0
+        hm = {0: -1}
+        res = sumv = 0
+        for i in range(len(nums)):
+            sumv += nums[i]
+            if sumv - k in hm:
+                res = max(res, i - hm[sumv - k])
+            if sumv not in hm:
+                hm[sumv] = i
+        return res
+
+
+
 
 
 

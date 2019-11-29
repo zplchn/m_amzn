@@ -26,5 +26,25 @@ class Solution:
                 print(roots)
         return True
 
+    def minimumCost1135(self, N: int, connections: List[List[int]]) -> int:
+        # greedy, sort by cost and try to union edge if not already connected
+        def find(i: int) -> int:
+            if roots[i] != -1:
+                roots[i] = find(roots[i])
+            return roots[i]
+
+        if N < 2 or not connections:
+            return 0
+        connections.sort(key=lambda l: l[2])
+        roots = [-1] * (N + 1)
+        res = 0
+        for x, y, v in connections:
+            rx, ry = find(x), find(y)
+            if rx != ry:
+                res += v
+                roots[rx] = ry # union is to union the roots join one to the other
+        return res if len({find(i) for i in range(1, N + 1)}) == 1 else -1 # set comprehension find # of roots
+
+
 s = Solution()
 s.isBipartite([[1,3],[0,2],[1,3],[0,2]])
