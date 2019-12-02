@@ -523,6 +523,14 @@ class Solution:
                 res = max(res, hm[depth] + depth) # find result is a/b/xx.ext contains # of depth /
         return res
 
+    def shortestPalindrome214(self, s: str) -> str:
+        if not s:
+            return s
+        r = s[::-1]
+        for i in range(len(r)):
+            if s.startswith(r[i:]):
+                return r[:i] + s
+
 
 
 

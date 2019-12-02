@@ -74,6 +74,46 @@ class Codec:
         return dfs()
 
 
+class Codec428:
+    # we still use preorder, however besides the val, we also store the children size
+
+    def serialize(self, root: 'Node') -> str:
+        """Encodes a tree to a single string.
+
+        :type root: Node
+        :rtype: str
+        """
+        def dfs(root: Node) -> None:
+            res.append(str(root.val))
+            res.append(str(len(root.children)))
+            for c in root.children:
+                dfs(c)
+
+        if not root:
+            return '#'
+        res = []
+        dfs(root)
+        return '#'.join(res)
+
+    def deserialize(self, data: str) -> 'Node':
+        """Decodes your encoded data to tree.
+
+        :type data: str
+        :rtype: Node
+        """
+        def dfs() -> Node:
+            node = Node(int(q.popleft()), [])
+            size = int(q.popleft())
+            for _ in range(size):
+                node.children.append(dfs())
+            return node
+
+        if data == '#':
+            return None
+        q = collections.deque(data.split('#'))
+        return dfs()
+
+
 class BSTIterator:
 
     def __init__(self, root: TreeNode):
@@ -1250,6 +1290,69 @@ class Solution:
         sumv = float('-inf')
         dfs(root)
         return root
+
+    def sumOfLeftLeaves404(self, root: TreeNode) -> int:
+        def dfs(root: TreeNode) -> None:
+            nonlocal res
+            if not root:
+                return
+            if root.left:
+                if not root.left.left and not root.left.right:
+                    res += root.left.val
+                else:
+                    dfs(root.left)
+            dfs(root.right)
+        if not root:
+            return 0
+        res = 0
+        dfs(root)
+        return res
+
+    def insertIntoBST(self, root: TreeNode, val: int) -> TreeNode:
+        if not root:
+            return TreeNode(val)
+        if val > root.val:
+            root.right = self.insertIntoBST(root.right, val)
+        else:
+            root.left = self.insertIntoBST(root.left, val)
+        return root
+
+    def recoverTree99(self, root: TreeNode) -> None:
+        def dfs(root: TreeNode) -> None:
+            nonlocal pre, p1, p2
+            if not root:
+                return
+            dfs(root.left)
+            if pre and pre.val > root.val:
+                if not p1:
+                    p1, p2 = pre, root
+                else:
+                    p2 = root
+            pre = root
+            dfs(root.right)
+
+        if not root:
+            return root
+        pre = p1 = p2 = None
+        dfs(root)
+        p1.val, p2.val = p2.val, p1.val
+
+    def findFrequentTreeSum508(self, root: TreeNode) -> List[int]:
+        def dfs(root: TreeNode) -> int:
+            if not root:
+                return 0
+            lv, rv = dfs(root.left), dfs(root.right)
+            sumv = root.val + lv + rv
+            c[sumv] += 1
+            return sumv
+
+        if not root:
+            return []
+        c = collections.Counter()
+        dfs(root)
+        maxv = max(c.values())
+        return [k for k, v in c.items() if v == maxv]
+
 
 
 

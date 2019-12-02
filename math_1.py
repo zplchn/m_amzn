@@ -21,8 +21,8 @@ class Solution:
         1. if digit, accumulate the number as int and use a local number to record it
         2. if + or -. use a sign varible and treat + as 1 and - as -1
         3. use a stack, when (, push in stack with res and sign, reset local number to 0
-        4. when ), pop stack, use sign to multiple local number and then add to res
-        dont forget the last number need to be added to res at the end
+        4. when ), calculate, then the entire () become a local num, and pop sign, and pop res. the next sign will
+        trigger the calculation
 
         Every case, think 3 varibles to check, [num, res, and sign]
         :param s:
@@ -30,27 +30,29 @@ class Solution:
         '''
         if not s:
             return 0
-        res, num, sign = 0, 0, 1
+        num = res = 0
+        sign = 1
         st = []
-        for x in s:
-            if x.isdigit():
-                num = num * 10 + ord(x) - ord('0')
-            elif x in '+-':
+        # condition to trigger calculation -> meet a sign or meet a )
+        s += '+'
+
+        for c in s:
+            if c.isdigit():
+                num = num * 10 + ord(c) - ord('0')
+            elif c in '+-':
                 res += sign * num
                 num = 0
-                sign = 1 if x == '+' else -1
-            elif x == '(':
+                sign = 1 if c == '+' else -1
+            elif c == '(':
                 st.append(res)
                 st.append(sign)
-                sign = 1 # need to reset everything as beginning
-                num = res = 0
-            elif x == ')':
+                res = 0
+                sign = 1
+            elif c == ')':
                 res += sign * num
+                num = res  # the entire () become a num and only need to calculate after it
                 sign = st.pop()
-                res = sign * res + st.pop()
-                num = 0
-        # if the last is a num, it's need to add to res
-        res += sign * num
+                res = st.pop()
         return res
 
     def calculate227(self, s: str) -> int:
@@ -159,6 +161,92 @@ M             1000
                 res += (1 << i)
                 x -= (y << i)
         return res if (dividend >= 0) == (divisor >= 0) else -res
+
+    def numberToWords273(self, num: int) -> str:
+        thousands = ['', 'Thousand', 'Million', 'Billion']
+        till19 = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve',
+                  'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
+        tens = ['', '', "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+
+        def read(n: int) -> str:
+            if n < 20:
+                return till19[n]
+            if n < 100:
+                return tens[n // 10] + ' ' + read(n % 10)
+            else:
+                return read(n // 100) + ' Hundred ' + read(n % 100)
+
+        if num == 0:
+            return 'Zero'
+        res = ''
+        for t in thousands:
+            if num % 1000:  # 1000000. we dont want to output 1 million thousand
+                res = read(num % 1000) + ' ' + t + ' ' + res  # for 328, will add two space after. need strip
+            num //= 1000
+        return ' '.join(res.split()) # split will ignore leading or trailing empty space
+
+    def minAreaRect939(self, points: List[List[int]]) -> int:
+        if not points:
+            return 0
+        hs = set()
+        minv = float('inf')
+        for x, y in points:
+            hs.add((x, y))
+        for x1, y1 in points:
+            for x2, y2 in points:
+                if x2 > x1 and y2 > y1 and (x2, y1) in hs and (x1, y2) in hs:
+                    # if there is a rectangle, there must exist top right and bottom left
+                    minv = min(minv, (x2 - x1) * (y2 - y1))
+        return 0 if minv == float('inf') else minv
+
+    def calculate772(self, s: str) -> int:
+        def cal(i: int):
+            st = []
+            num = 0
+            sign = '+'
+
+            while i < len(s):
+                if s[i].isdigit():
+                    num = num * 10 + ord(s[i]) - ord('0')
+                elif s[i] == '(':
+                    num, i = cal(i + 1)
+                elif s[i] in '+-*/)':
+                    if sign == '+':
+                        st.append(num)
+                    elif sign == '-':
+                        st.append(-num)
+                    elif sign == '*':
+                        st.append(st.pop() * num)
+                    elif sign == '/':
+                        st.append(int(st.pop() / num))
+
+                    if s[i] == ')':
+                        return sum(st), i # recursion but pass back the end ) index
+                    sign = s[i]
+                    num = 0
+                i += 1
+            return sum(st)
+
+        if not s:
+            return 0
+        s += '+'
+        return cal(0)
+
+
+
+
+s = Solution()
+res = []
+# for x in [8, 28, 328, 5328, 25328]:
+for x in [123]:
+    res += [s.numberToWords273(x)]
+
+for y in res:
+    print(y)
+
+
+
+
 
 
 

@@ -45,6 +45,24 @@ class Solution:
                 roots[rx] = ry # union is to union the roots join one to the other
         return res if len({find(i) for i in range(1, N + 1)}) == 1 else -1 # set comprehension find # of roots
 
+    def validTree261(self, n: int, edges: List[List[int]]) -> bool:
+        def find(i):
+            if roots[i] != i:
+                roots[i] = find(roots[i])
+            return roots[i]
+
+        # for an graph to be valid tree : 1. connected 2. no circle
+        if len(edges) != n - 1:
+            return False # maybe all connected. if no circle
+        # union find check no circle. if 2 nodes of an edge are already connected
+        roots = list(range(n))
+        for e in edges:
+            ra, rb = map(find, e)
+            if ra == rb:
+                return False
+            roots[rb] = ra
+        return True
+
 
 s = Solution()
 s.isBipartite([[1,3],[0,2],[1,3],[0,2]])

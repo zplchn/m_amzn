@@ -476,6 +476,129 @@ class Solution:
         c = collections.Counter(nums)
         return dfs(sum_all // 2)
 
+    def canCross403(self, stones: List[int]) -> bool:
+        def dfs(cur: int, speed: int) -> bool:
+            if cur == stones[-1]:
+                return True
+            if (cur, speed) in memo:
+                return False
+
+            for s in [speed -1, speed, speed + 1]:
+                if s < 1:
+                    continue
+                new_stone = cur + s
+                if new_stone in hs:
+                    if dfs(new_stone, s):
+                        return True
+            memo.add((cur, speed))
+            return False
+
+        if not stones:
+            return False
+        hs = set(stones)
+        memo = set()
+        return dfs(1, 1)
+
+    def cleanRoom489(self, robot):
+        # class Robot:
+        #    def move(self):
+        #        """
+        #        Returns true if the cell in front is open and robot moves into the cell.
+        #        Returns false if the cell in front is blocked and robot stays in the current cell.
+        #        :rtype bool
+        #        """
+        #
+        #    def turnLeft(self):
+        #        """
+        #        Robot will stay in the same cell after calling turnLeft/turnRight.
+        #        Each turn will be 90 degrees.
+        #        :rtype void
+        #        """
+        #
+        #    def turnRight(self):
+        #        """
+        #        Robot will stay in the same cell after calling turnLeft/turnRight.
+        #        Each turn will be 90 degrees.
+        #        :rtype void
+        #        """
+        #
+        #    def clean(self):
+        #        """
+        #        Clean the current cell.
+        #        :rtype void
+        #        """
+        """
+        Treat this problem as 4-branch tree DFS. at each level only turn right to go to next branch. To go back one
+        level up, turn right -> right -> move one step -> right -> right. so keep the direction in order
+        :type robot: Robot
+        :rtype: None
+        """
+        directions = [[-1, 0], [0, 1], [1, 0], [0, -1]]
+
+        def dfs(i, j, curdir):
+            robot.clean()
+            visited.add((i, j))
+            for k in range(4):
+                x, y = i + directions[curdir][0], j + directions[curdir][1]
+                if (x, y) not in visited and robot.move():  # keep current direction and move in if can
+                    dfs(x, y, curdir)
+                # turn right
+                curdir = (curdir + 1) % 4
+                robot.turnRight()
+            # this finishes all 4 directions, need to go back one step / backtrack
+            robot.turnRight()
+            robot.turnRight()
+            robot.move()
+            robot.turnRight()
+            robot.turnRight()
+
+        visited = set()
+        dfs(0, 0, 0)
+
+    def removeInvalidParentheses301(self, s: str) -> List[str]:
+        def is_valid(s: str) -> bool:
+            cnt = 0
+            for c in s:
+                if c == '(':
+                    cnt += 1
+                elif c == ')':
+                    cnt -= 1
+                    if cnt < 0: # ())(
+                        return False
+            return cnt == 0
+
+        def dfs(combi: str, start: int, c1: int, c2: int) -> None:
+            if c1 == c2 == 0:
+                if is_valid(combi):
+                    res.append(combi)
+                return
+            for i in range(start, len(combi)):
+                if i != start and combi[i] == combi[i - 1]:
+                    continue # for (() or ())) the same paranth remvoe any one is the same
+                if combi[i] == '(' and c1 > 0:
+                    dfs(combi[:i] + combi[i + 1:], i, c1 - 1, c2) # start should be i since i is removed
+                if combi[i] == ')' and c2 > 0:
+                    dfs(combi[:i] + combi[i + 1:], i, c1, c2 - 1)
+
+        # count the extra ( or ) using two counters c1, c2. when ( is more, c1 will be +. otherwise c2 +.
+        # then using dfs and remove ( and ) when c1 or c2 is +. when all == 0. check is valid
+
+        c1 = c2 = 0
+        for c in s:
+            if c == '(':
+                c1 += 1
+            elif c == ')':
+                if c1 > 0:
+                    c1 -= 1
+                else:
+                    c2 += 1
+        # )( --> c1 = c2 = 1
+        # till now we get the # of ( and ) need to be removed
+
+        res = []
+        dfs(s, 0, c1, c2)
+        return res
+
 
 
 

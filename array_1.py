@@ -81,6 +81,26 @@ class PeekingIterator284:
         """
         return self.has_cache or self.iter.hasNext()
 
+
+class WordDistance244:
+
+    def __init__(self, words: List[str]):
+        self.hm = collections.defaultdict(list)
+        for i in range(len(words)):
+            self.hm[words[i]].append(i)
+
+    def shortest(self, word1: str, word2: str) -> int:
+        l1, l2 = self.hm[word1], self.hm[word2]
+        minv = float('inf')
+        i1 = i2 = 0
+        while i1 < len(l1) and i2 < len(l2):
+            minv = min(minv, abs(l1[i1] - l2[i2]))
+            if l1[i1] < l2[i2]:
+                i1 += 1
+            else:
+                i2 += 1
+        return minv
+
 class Solution:
 
     class MyQueue:
@@ -1196,6 +1216,107 @@ class Solution:
             if sumv not in hm:
                 hm[sumv] = i
         return res
+
+    def shortestDistance243(self, words: List[str], word1: str, word2: str) -> int:
+        if not words:
+            return 0
+        i1 = i2 = -1
+        minv = len(words) + 1
+        for i in range(len(words)):
+            if words[i] == word1:
+                i1 = i
+                if i2 != -1:
+                    minv = min(minv, i1 - i2)
+            elif words[i] == word2:
+                i2 = i
+                if i1 != -1:
+                    minv = min(minv, i2 - i1)
+        return minv
+
+    def shortestWordDistance245(self, words: List[str], word1: str, word2: str) -> int:
+        if not words:
+            return 0
+        minv = len(words) + 1
+        i1 = i2 = -1
+        for i in range(len(words)):
+            if words[i] == word1:
+                i1 = i
+                if i2 != -1:
+                    minv = min(minv, i1 - i2)
+            if words[i] == word2:
+                i2 = i
+                if i1 != -1 and i1 != i2:
+                    minv = min(minv, i2 - i1)
+        return minv
+
+    def spiralOrder54(self, matrix: List[List[int]]) -> List[int]:
+        # by level, horizontal go end to end, vertical go short (2nd - 2nd to last). Reason, when there is a heart
+        # left, eg 1 node, if all row/col cannot take last, then it's starving. so must horizon long, vertical short.
+        # And this may cause duplicate at the end a l -> r and a r -> l is print twice, so slice at the end.
+        res = []
+        if not matrix or not matrix[0]:
+            return res
+        m, n = len(matrix), len(matrix[0])
+        l, r, u, d = 0, n - 1, 0, m - 1
+        while len(res) <= m * n:
+            for j in range(l, r + 1):
+                res.append(matrix[u][j])
+            for i in range(u + 1, d):
+                res.append(matrix[i][r])
+            for j in range(r, l - 1, -1):
+                res.append(matrix[d][j])
+            for i in range(d - 1, u, -1):
+                res.append(matrix[i][l])
+            l, r, u, d = l + 1, r - 1, u + 1, d - 1
+        return res[:m * n]
+
+    def generateMatrix59(self, n: int) -> List[List[int]]:
+        if n <= 0:
+            return []
+        x = 1
+        m = [[0] * n for _ in range(n)]
+        l, r, u, d = 0, n - 1, 0, n - 1
+        while l <= r and u <= d:
+            for j in range(l, r + 1):
+                m[u][j] = x
+                x += 1
+            for i in range(u + 1, d):
+                m[i][r] = x
+                x += 1
+            for j in range(r, l - 1, -1):
+                m[d][j] = x
+                x += 1
+            for i in range(d - 1, u, -1):
+                m[i][l] = x
+                x += 1
+            l, r, u, d = l + 1, r - 1, u + 1, d - 1
+        if n % 2 == 1: # when n is odd, the heart is a single node and will be overwritten again
+            m[n // 2][n // 2] -= 1
+        return m
+
+    def find132pattern456(self, nums: List[int]) -> bool:
+        if len(nums) < 3:
+            return False
+        # use a stack from right to left, keep it descending and whenever meet a greater number, pop until empty,
+        # so the last to pop out is the second largest. and the one in st is largest
+        st = []
+        second_largest = float('-inf')
+        for i in reversed(range(len(nums))):
+            if nums[i] < second_largest:
+                return True
+            while st and nums[i] > st[-1]:
+                second_largest = st.pop()
+            st.append(nums[i])
+        return False
+
+
+
+
+
+s = Solution()
+print(s.generateMatrix59(3))
+
+
 
 
 

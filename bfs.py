@@ -189,6 +189,78 @@ class Solution:
                     q.append((x, y))
         return matrix
 
+    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+        # if we have a -> b, and b -> c then a/c == a -> b -> c. so this problem becomes find shortest path in graph
+        def bfs(s: str, e: str) -> None:
+            visited = {s}
+            q = collections.deque([(s, 1)])  # node, product
+            while q:
+                node, product = q.popleft()
+                if node == e:
+                    res.append(product)
+                    return
+                for c, val in graph[node].items():
+                    if c not in visited:
+                        visited.add(c)
+                        q.append((c, product * val))
+            res.append(-1)
+
+        if not equations or not values or not queries:
+            return []
+        graph = collections.defaultdict(dict)
+        for (s, e), v in zip(equations, values):
+            graph[s][e] = v
+            graph[e][s] = 1 / v
+        res = []
+        for qs, qe in queries:
+            if qs not in graph or qe not in graph:
+                res.append(-1.0)
+                continue
+            bfs(qs, qe)
+        return res
+
+    def cutOffTree675(self, forest: List[List[int]]) -> int:
+        # this bascially ask the sum of shortest path between every two nodes, in asending order. bfs to calculate
+        # each pair and return the sum
+        def bfs(sx, sy, ex, ey) -> int:
+            if sx == ex and sy == ey:
+                return 0
+            q = collections.deque([(sx, sy, 0)])
+            visited = {(sx, sy)}
+            offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+
+            while q:
+                x, y, dist = q.popleft()
+                if x == ex and y == ey:
+                    return dist
+                for o in offsets:
+                    i, j = x + o[0], y + o[1]
+                    if 0 <= i < len(forest) and 0 <= j < len(forest[0]) and forest[i][j] != 0 and (i, j) not in visited:
+                        visited.add((i, j))
+                        q.append((i, j, dist + 1))
+            return -1
+
+        if not forest:
+            return -1
+        trees = []
+        for i in range(len(forest)):
+            for j in range(len(forest[0])):
+                if forest[i][j] > 1: # dont forget to check only trees
+                    trees.append((forest[i][j], i, j))
+        trees.sort()
+        res = 0
+        r, c = 0, 0
+        for h, i, j in trees:
+            dist = bfs(r, c, i, j)
+            if dist == -1:
+                return -1
+            res += dist
+            r,c = i, j
+        return res
+
+
+
+
 
 
 
@@ -213,7 +285,7 @@ for word in word_list:
     for i in range(len(word)):
         s = word[:i] + "_" + word[i+1:]
         d[s] = d.get(s, []) + [word]
-print(d)
+# print(d)
 
 
 

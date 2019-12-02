@@ -232,29 +232,6 @@ class Solution:
                 return False
         return True
 
-    def validTree(self, n: int, edges: List[List[int]]) -> bool:
-        def find(i):
-            x = i
-            while roots[i] != i:
-                i = roots[i]
-            while x != i:
-                t = roots[x]
-                roots[x] = i
-                x = t
-            return i
-
-        # for an graph to be valid tree : 1. connected 2. no circle
-        if len(edges) != n - 1:
-            return False # maybe all connected. if no circle
-        # union find if one edge 2 nodes are already connected, then it's a circle
-        roots = list(range(n))
-        for e in edges:
-            ra, rb = map(find, e)
-            if ra == rb:
-                return False
-            roots[rb] = ra
-        return True
-
     def findRedundantConnection684(self, edges: List[List[int]]) -> List[int]:
         def find(i):
             if roots[i] != i: # path compression at same time

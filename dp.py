@@ -273,6 +273,46 @@ class Solution:
             dp[0], dp[1] = dp[1], x
         return dp[1]
 
+    def minCut132(self, s: str) -> int:
+        if not s:
+            return 0
+        n = len(s)
+        dp = [[False] * n for _ in range(n)]
+        for i in reversed(range(n)):
+            for j in range(i, n):
+                if s[i] == s[j] and (j - i <= 2 or dp[i + 1][j - 1]):
+                    dp[i][j] = True
+        res = [i for i in range(n + 1)]
+        for j in range(n):
+            for i in reversed(range(j + 1)):
+                if dp[i][j]:
+                    res[j + 1] = min(res[j + 1], res[i] + 1)
+        return res[-1] - 1
+
+    def isInterleave97(self, s1: str, s2: str, s3: str) -> bool:
+        # 2d dp and from small to large (left to right) dp[i][j] means using i chars in s1 and j chars in s2,
+        # whether or not can interleave and create s3. The subproblem being, say s1 = ab, s2 = cd, at now s3 = acbd
+        # or acdb. at the 4th position, s3 uses b equals s1 at 2, plus previous 3 chars(1 from s1 and 2 from s2) is true
+        if not s1:
+            return s2 == s3
+        if not s2:
+            return s1 == s3
+        if len(s1) + len(s2) != len(s3):
+            return False
+        dp =[[False] * (len(s2) + 1) for _ in range(len(s1) + 1)]
+        dp[0][0] = True
+        for i in range(len(s1)):
+            dp[i + 1][0] = s1[i] == s3[i] and dp[i][0]
+        for j in range(len(s2)):
+            dp[0][j + 1] = s2[j] == s3[j] and dp[0][j]
+        for i in range(len(s1)):
+            for j in range(len(s2)):
+                dp[i + 1][j + 1] = s1[i] == s3[i + j + 1] and dp[i][j + 1] or s2[j] == s3[i + j + 1] and dp[i + 1][j]
+        return dp[-1][-1]
+
+
+
+
 
 
 

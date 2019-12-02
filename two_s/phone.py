@@ -1,7 +1,7 @@
 import random
 from typing import List
 import unittest
-
+import bisect
 
 def rand7():
     return random.randint(1, 7)
@@ -86,21 +86,6 @@ class RandomGenerator:
         return res
 
 
-class Solution398:
-
-    def __init__(self, nums: List[int]):
-        self.nums = nums
-
-    def pick(self, target: int) -> int:
-        # to save space, use resevoir sampling
-        res, cnt = -1, 0
-        for i in range(len(self.nums)):
-            if self.nums[i] == target:
-                cnt += 1
-                if random.randrange(cnt) == 0:
-                    res = i
-        return res
-
 
 class Solution710:
     # idea is get M = N - len(B). And for numbers between [0, M) use a hm to map to one whitelisted after M
@@ -117,25 +102,6 @@ class Solution710:
     def pick(self) -> int:
         x = random.randrange(self.m)
         return self.hm.get(x, x)
-
-
-class Solution528:
-    # create an prefix sum array and use binary search to generate a number and find the first one number that greater
-    def __init__(self, w: List[int]):
-        self.psum = w[::]
-        for i in range(1, len(self.psum)):
-            self.psum[i] += self.psum[i - 1]
-
-    def pickIndex(self) -> int:
-        x = random.randrange(self.psum[-1])
-        l, r = 0, len(self.psum) - 1
-        while l < r:
-            m = l + (r - l) // 2
-            if x < self.psum[m]:
-                r = m
-            elif x >= self.psum[m]:
-                l = m + 1
-        return l
 
 
 class TestRandom(unittest.TestCase):

@@ -1,5 +1,8 @@
 import random
 import string
+import bisect
+from typing import List
+
 
 class Codec535:
 
@@ -29,6 +32,18 @@ class Codec535:
         :rtype: str
         """
         return self.codetourl[shortUrl[-6:]]
+
+
+class Solution528:
+    # create an prefix sum array and use binary search to generate a number and find the first one number that greater
+    def __init__(self, w: List[int]):
+        self.psum = w[::]
+        for i in range(1, len(self.psum)):
+            self.psum[i] += self.psum[i - 1]
+
+    def pickIndex(self) -> int:
+        x = random.randint(1, self.psum[-1])
+        return bisect.bisect_left(self.psum, x)
 
 class RandomizedSet380:
 
