@@ -1353,6 +1353,29 @@ class Solution:
         maxv = max(c.values())
         return [k for k, v in c.items() if v == maxv]
 
+    def treeToDoublyList426(self, root: 'Node') -> 'Node':
+        def dfs(root: Node) -> None:
+            nonlocal pre, head
+            if not root:
+                return
+            dfs(root.left)
+            if not head:
+                head = pre = root
+            else:
+                pre.right = root
+                root.left = pre
+                pre = root
+            dfs(root.right)
+
+        if not root:
+            return root
+        pre = head = None
+        dfs(root)
+        pre.right = head
+        head.left = pre
+        return head
+
+
 
 
 

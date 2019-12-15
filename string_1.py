@@ -1,6 +1,7 @@
 from typing import List, Optional
 import collections
 import heapq
+import string
 
 
 class Codec271:
@@ -12,6 +13,7 @@ class Codec271:
         :type strs: List[str]
         :rtype: str
         """
+
         return ''.join('%d#' % len(s) + s for s in strs)
 
     def decode(self, s):
@@ -530,6 +532,49 @@ class Solution:
         for i in range(len(r)):
             if s.startswith(r[i:]):
                 return r[:i] + s
+
+    def fullJustify68(self, words: List[str], maxWidth: int) -> List[str]:
+        # Think of each line. It needs to keep adding words until sum(len(word)) + sum(space) is > maxL.
+        # Once we sure about the words fits a line, we use round robin to distribute the spaces
+        # for last line we call str.ljust(maxL, fill_letter=' ') to append the space(left adjust)
+
+        combi = []
+        num_chars = 0
+        res = []
+
+        for w in words:
+            if num_chars + len(combi) + len(w) > maxWidth: # cannot take new word. so line of words confirmed
+                num_spaces = maxWidth - num_chars
+                for i in range(num_spaces):
+                    combi[i % (len(combi) - 1 or 1)] += ' '
+                res.append(''.join(combi))
+                combi = []
+                num_chars = 0
+
+            combi.append(w)
+            num_chars += len(w)
+
+        # last line have not be processed
+        return res + [' '.join(combi).ljust(maxWidth)]
+
+    def wordsTyping418(self, sentence: List[str], rows: int, cols: int) -> int:
+        words = ' '.join(sentence) + ' '
+        lens = len(words)
+        res = 0
+        for r in range(rows):
+            res += cols
+            while res > 0 and words[res % lens] != ' ':
+                res -= 1
+        return res // lens
+
+
+
+s = Solution()
+print(s.wordsTyping418(["try","to","be","better"], 10000, 9001))
+
+
+
+
 
 
 

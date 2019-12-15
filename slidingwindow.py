@@ -3,6 +3,34 @@ import collections
 import bisect
 import heapq
 
+'''
+Sliding window 
+
+For questions like: sliding window / minimum size subarray/substring that meet some condition
+Note it can only be MINIMUM not maximum, which should use
+    - stack ( maximum size parenthesis)
+    - presum ( longest subarray sum equals k)
+    - hashmap ( array degrees)
+
+common routine: Use two pointers for both right (j) and left side (i)
+Each loop:
+1. Enter right side j
+    - put into deque (sliding window max)
+    - bisect insort (sliding window median)
+    - decrease counter (sliding window cover substring)
+    
+2. While meet condition, shrink left side
+    - condition could be: 
+        - window size == k (j == k - 1)
+        - counter == len(T) 
+        - sum >= target (minimum window sum
+        
+3. Once the window being the minimum size, output the local result as one possible candidate
+        
+
+'''
+
+
 class Solution:
     def numKLenSubstrNoRepeats1100(self, S: str, K: int) -> int:
         # always keep a sliding window with no repeating letters, and compare the length of this window to k each time
@@ -117,6 +145,80 @@ class Solution:
             if res[-1][1] + heap[0][0] != 0: # the new highest height now is different from last result
                 res.append([s, -heap[0][0]])
         return res[1:]
+
+    def longestRepeatingSubstring1062(self, S: str) -> int:
+        # to find longest, we need to find an int between 1 and n - 1. so we can use binary search to try different n.
+        # for find a repeating substring, we can use rolling hash. so it's o(n) to compare string match. despite hash
+        # can have collision
+        base = 26
+        mod = 2 ** 24
+
+        def search(k: int) -> bool:
+            rh = 0 # rolling hash
+            hs = set()
+            lv = base ** k % mod
+            i = 0
+            for j in range(len(S)):
+                if j < k:
+                    rh = (rh * base + ord(S[j]) - ord('a')) % mod
+                else:
+                    hs.add(rh)
+                    rh = (rh * base - (ord(S[i]) - ord('a')) * lv + ord(S[j]) - ord('a')) % mod
+                    if rh in hs:
+                        return True
+                    i += 1
+            return False
+
+        if not S:
+            return 0
+        l, r = 1, len(S) - 1
+        while l <= r:
+            m = l + ((r - l) >> 1)
+            if search(m):
+                l = m + 1
+            else:
+                r = m - 1
+        return r
+
+    def longestDupSubstring1044(self, S: str) -> str:
+        # same as 1062, but output the string instead of length. still use rolling hash
+        if not S:
+            return S
+        # to find a repeating string, use a hashset and store rolling hash of substrings
+        base = 26
+        mod = 2 ** 40 # hash can collision, need to find a real big number here or verify result
+
+        def search(m: int):
+            rh = i = 0
+            hs = set()
+            lv = base ** m % mod
+            for j in range(len(S)):
+                if j < m:
+                    rh = (rh * base + ord(S[j]) - ord('a')) % mod
+                else:
+                    hs.add(rh)
+                    rh = (rh * base - (ord(S[i]) - ord('a')) * lv + (ord(S[j]) - ord('a'))) % mod
+                    i += 1
+                    if rh in hs:
+                        return i, j
+
+            return -1, -1
+
+        # to find longest, using binary search and find a number between 1 and len(S) - 1
+        l, r = 1, len(S) - 1
+        i = j = -1
+        res = None
+        while l <= r:
+            m = l + ((r - l) >> 1)
+            i, j = search(m)
+            if i != -1:
+                res = (i, j)
+                l = m + 1
+            else:
+                r = m - 1
+        return S[res[0]: res[1] + 1] if res else ''
+
+
 
 
 

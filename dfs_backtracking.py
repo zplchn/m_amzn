@@ -454,7 +454,7 @@ class Solution:
         # converts the problem of finding a combination of numbers in the list sum == sum_all // 2
         # the reason using a counter - say there are 100 of 1s, and another random number 99. without using counter,
         # then each dfs generate a tree, so there will be 100 trees. by using counter, only generate 2 tree,
-        # one for 1 and one for 99.
+        # one for 1 and one for 99. so use counter for combination sum problem
         def dfs(x) -> bool:
             if x == 0:
                 return True

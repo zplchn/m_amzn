@@ -141,36 +141,6 @@ class Solution:
                 heapq.heappush(heap, y - x)
         return -heapq.heappop(heap) if heap else 0
 
-    def shortestDistance505(self, maze: List[List[int]], start: List[int], destination: List[int]) -> int:
-        # Dijkstra: core idea is single source + relexation. we can accept the queue contain multiple entry for same
-        # node, inserted in descending dist from source(cug edges), and the minheap guarantee the node will be dequed
-        # first time, it IS the shortest distance from source
-        if not maze or not maze[0] or not start or not destination:
-            return 0
-        heap = [(0, start[0], start[1])]
-        stopped = {(start[0], start[1]): 0}
-        offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
-        visited = set()
-        while heap:
-            dist, i, j = heapq.heappop(heap) # Dijsktra once a node is dequed from the pq, it is the shortest already
-            # when the node is first time dequeued; the same node may dequed multiple times but only first time is
-            # the shorted path from source
-            if [i, j] == destination:
-                return dist
-            if (i, j) in visited:
-                continue
-            visited.add((i, j))
-            for o in offsets:
-                x, y = i, j
-                d = 0
-                while 0 <= x + o[0] < len(maze) and 0 <= y + o[1] < len(maze[0]) and maze[x + o[0]][y + o[1]] != 1:
-                    x, y = x + o[0], y + o[1]
-                    d += 1
-                total = dist + d
-                if (x, y) not in stopped or total < stopped[(x, y)]:
-                    stopped[(x, y)] = total
-                    heapq.heappush(heap, (total, x, y))
-        return -1
 
     def findCheapestPrice787(self, n: int, flights: List[List[int]], src: int, dst: int, K: int) -> int:
         # first create the graph, then do dijkstra. the visited array need to store a pair(node, k)

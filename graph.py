@@ -154,30 +154,6 @@ class Solution:
         dfs('JFK')
         return res[::-1]
 
-    def countComponents(self, n: int, edges: List[List[int]]) -> int:
-        def dfs(i):
-            visited[i] = True
-            for y in graph[i]:
-                if not visited[y]:
-                    dfs(y)
-        if n <= 0:
-            return 0
-        # for graph, convert into adjacency list first
-        graph = [[] for _ in range(n)]
-        # visited = [False * n] False * 3 = 0; True * 3 = 3; init an array MUST use for _ in range(x) Not *
-        visited = [False for _ in range(n)]
-        res = 0
-
-        for x, y in edges:
-            graph[x].append(y)
-            graph[y].append(x)
-
-        for i, x in enumerate(visited):
-            if not x:
-                res += 1
-                dfs(i)
-        return res
-
     def accountsMerge(self, accounts: List[List[str]]) -> List[List[str]]:
         def dfs(i: int, t: List) -> None:
             visited[i] = True

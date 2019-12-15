@@ -63,6 +63,21 @@ class Solution:
             roots[rb] = ra
         return True
 
+    def countComponents323(self, n: int, edges: List[List[int]]) -> int:
+        def find(i: int) -> int:
+            if roots[i] != i:
+                roots[i] = find(roots[i])
+            return roots[i]
+
+        if n < 1:
+            return 0
+        roots = list(range(n))
+        for a, b in edges:
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                roots[ra] = rb
+        return len({find(i) for i in range(n)})
+
 
 s = Solution()
 s.isBipartite([[1,3],[0,2],[1,3],[0,2]])

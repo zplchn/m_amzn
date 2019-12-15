@@ -310,6 +310,85 @@ class Solution:
                 dp[i + 1][j + 1] = s1[i] == s3[i + j + 1] and dp[i][j + 1] or s2[j] == s3[i + j + 1] and dp[i + 1][j]
         return dp[-1][-1]
 
+    def numTrees96(self, n: int) -> int:
+        if n <= 1:
+            return n
+        dp = [0] * (n + 1)
+        dp[0] = 1
+        for i in range(1, n + 1):
+            for j in range(1, i + 1):
+                dp[i] += dp[j - 1] * dp[i - j]
+        return dp[-1]
+
+    def isMatchWildCard44(self, s: str, p: str) -> bool:
+        '''
+        use dp[i][j] to mean the first i chars from s and first j chars from p can match.
+        2 subproblems: p[j] is * or not *
+
+        When p[j] is a *, there are two subproblems.
+        s : a
+        p:  a *
+
+        if p[j] is * and it represents an empty str, then dp[i][j] = dp[i][j - 1]
+
+        s: a b
+        p: a *
+
+        if p[j] is * and it represents anything WHEN WE PUT THE Ith char in s, dp[i][j] = dp[i - 1][j]
+
+        when p[j] is not *, we compare s[i] and p[j] and if they match, dp[i][j] = dp[i - 1][j - 1]
+
+        '''
+        ls, lp = len(s), len(p)
+        dp = [[False] * (lp + 1) for _ in range(ls + 1)]
+
+        # initial condition, when s is empty, and p all *
+        dp[0][0] = True
+        for j in range(lp):
+            dp[0][j + 1] = p[j] == '*' and dp[0][j]
+
+        for i in range(ls):
+            for j in range(lp):
+                if p[j] == '*':
+                    dp[i + 1][j + 1] = dp[i + 1][j] or dp[i][j + 1]
+                else:
+                    dp[i + 1][j + 1] = (s[i] == p[j] or p[j] == '?') and dp[i][j]
+        return dp[-1][-1]
+
+    def isMatchRegularExpression10(self, s: str, p: str) -> bool:
+        '''
+
+        we also use dp[i][j] to note the first i chars from s and first j chars from p can match
+        2 subproblems: when p[j] is * or not *
+
+        When p[j] is *, there are 2 subproblems
+
+        s: a
+        p: a b *
+        if b * can be an empty string, then dp[i][j] = dp[i][j - 2]
+
+        s: a b [b]
+        p: a b *
+
+        if b * not an empty string when we place s[i], dp[i][j] = (s[i] == p[j - 1] or p[j - 1] == .) and dp[i-1][j]
+
+        When p[j] is not *, dp[i][j] = s[i] == p[j] or p[j] == . and dp[i-1][j-1]
+
+        '''
+        ls, lp = len(s), len(p)
+        dp = [[False] * (lp + 1) for _ in range(ls + 1)]
+        dp[0][0] = True
+        for j in range(1, lp):
+            dp[0][j + 1] = p[j] == '*' and dp[0][j - 1]
+        for i in range(ls):
+            for j in range(lp):
+                if p[j] == '*':
+                    dp[i + 1][j + 1] = dp[i + 1][j - 1] or (s[i] == p[j - 1] or p[j - 1] == '.') and dp[i][j + 1]
+                else:
+                    dp[i + 1][j + 1] = (s[i] == p[j] or p[j] == '.') and dp[i][j]
+        return dp[-1][-1]
+
+
 
 
 

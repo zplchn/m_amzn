@@ -258,6 +258,23 @@ class Solution:
             r,c = i, j
         return res
 
+    def canMeasureWater365(self, x: int, y: int, z: int) -> bool:
+        if z > x + y:
+            return False
+        q = collections.deque([(0, 0)])
+        visited = {(0, 0)}
+        while q:
+            a, b = q.popleft()
+            if a + b == z:
+                return True
+            next_states = {(x, b), (a, y), (0, b), (a, 0), (min(x, a + b),
+                            a + b - min(x, a + b)), (a + b - min(y, a + b), min(y, a + b))} - visited
+            visited.update(next_states)
+            q.extend(next_states)
+        return False
+
+
+
 
 
 

@@ -114,33 +114,33 @@ class Solution:
 
         def push(self, x: int) -> None:
             """
-            Push element x to the back of queue. O(N)
+            Throw all elements to the empty st, put the new one in, throw back from the other st
             """
-            while self.st2:
-                self.st1.append(self.st2.pop())
-            self.st1.append(x)
             while self.st1:
                 self.st2.append(self.st1.pop())
+            self.st1.append(x)
+            while self.st2:
+                self.st1.append(self.st2.pop())
 
         def pop(self) -> int:
             """
             Removes the element from in front of queue and returns that element.
             """
-            return self.st2.pop()
+            return self.st1.pop()
 
         def peek(self) -> int:
             """
             Get the front element.
             """
-            return self.st2[-1]
+            return self.st1[-1]
 
         def empty(self) -> bool:
             """
             Returns whether the queue is empty.
             """
-            return not self.st2
+            return not self.st1
 
-    class MyStack:
+    class MyStack225:
 
         def __init__(self):
             """
@@ -151,13 +151,12 @@ class Solution:
 
         def push(self, x: int) -> None:
             """
-            Push element x onto stack.
+            Always put to an empty q first, then move the others into this queue
             """
             self.q2.append(x)
             while self.q1:
                 self.q2.append(self.q1.popleft())
             self.q1, self.q2 = self.q2, self.q1
-
 
         def pop(self) -> int:
             """

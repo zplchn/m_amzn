@@ -1,3 +1,4 @@
+import collections
 from typing import List
 
 
@@ -28,6 +29,28 @@ class NestedIterator(object):
         return False
 
 
+class FreqStack:
+    # Similar to LFU, need 2 mappings: key -> freq; freq -> [keys]. And a max_freq to keep track of maxv
+    def __init__(self):
+        self.keyhm = collections.Counter()
+        self.freqhm = collections.defaultdict(list)
+        self.max_freq = 0
+
+    def push(self, x: int) -> None:
+        self.keyhm[x] += 1
+        self.max_freq = max(self.max_freq, self.keyhm[x])
+        self.freqhm[self.keyhm[x]].append(x)
+
+    def pop(self) -> int:
+        if self.max_freq == 0:
+            return -1
+        x = self.freqhm[self.max_freq].pop()
+        if not self.freqhm[self.max_freq]:
+            self.max_freq -= 1
+        self.keyhm[x] -= 1
+        return x
+
+
 class Solution:
     def longestValidParentheses(self, s: str) -> int:
         # use a stack to maintain (. two key points: 1. start: the first valid ( 2. peek: the last valid (
@@ -56,7 +79,7 @@ class Solution:
         st = []
         maxv = 0
         for i in range(len(heights)):
-            while st and heights[i] <= heights[st[-1]]:
+            while st and heights[i] < heights[st[-1]]:
                 h = heights[st.pop()]
                 maxv = max(maxv, ((i - st[-1] - 1) * h if st else h * i))
             st.append(i)
@@ -71,7 +94,7 @@ class Solution:
             st = []
             heights.append(0)
             for i in range(len(heights)):
-                while st and heights[i] <= heights[st[-1]]:
+                while st and heights[i] < heights[st[-1]]:
                     h = heights[st.pop()]
                     maxv = max(maxv, ((i - st[-1] - 1) * h if st else i * h))
                 st.append(i)

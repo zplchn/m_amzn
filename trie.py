@@ -3,7 +3,7 @@ import collections
 
 
 class AutocompleteSystem:
-    # use a trie to store the historical words, and record the frequency
+    # 642 use a trie to store the historical words, and record the frequency
 
     class TrieNode:
         def __init__(self):
@@ -50,6 +50,9 @@ class AutocompleteSystem:
         res = self.search(self.keyword)
         return [r[1] for r in sorted(res)[:3]]
 
+
+class Solution:
+
     def findWords212(self, board: List[List[str]], words: List[str]) -> List[str]:
 
         class TrieNode:
@@ -88,7 +91,7 @@ class AutocompleteSystem:
             board[i][j] = '#'
             for o in offsets:
                 x, y = i + o[0], j + o[1]
-                if 0 <= x < len(board) and 0 <= y < len(board[0]) and board[x][y] != '#' and  board[x][y] in \
+                if 0 <= x < len(board) and 0 <= y < len(board[0]) and board[x][y] != '#' and board[x][y] in \
                         node.children:
                     dfs(x, y, s + board[x][y])
             board[i][j] = t

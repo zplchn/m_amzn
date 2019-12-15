@@ -271,30 +271,27 @@ class Solution:
         sort(0, len(nums) - 1)
         return nums
 
-    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
-        def kth(nums1, i1, j1, nums2, i2, j2, k):
-            l1 = j1 - i1 + 1
-            l2 = j2 - i2 + 1
-            if l1 > l2:
-                return kth(nums2, i2, j2, nums1, i1, j1, k)
-            if not l1:
-                return nums2[i2 + k - 1]
+    def findMedianSortedArrays4(self, nums1: List[int], nums2: List[int]) -> float:
+        # o(log(m + n)) the point is every time cut half k list and find a half k in the next round until k == 1
+        def kth(nums1, nums2, k):
+            if len(nums1) > len(nums2):
+                return kth(nums2, nums1, k)
+            if not nums1:
+                return nums2[k - 1]
             if k == 1:
-                return min(nums1[i1], nums2[i2])
-            halfk = min(k // 2, l1)
-            offset1, offset2 = i1 + halfk - 1, i2 + k - halfk - 1
-            if nums1[offset1] == nums2[offset2]:
-                return nums1[offset1]
-            elif nums1[offset1] < nums2[offset2]:
-                return kth(nums1, offset1 + 1, j1, nums2, i2, offset2, k - halfk)
+                return min(nums1[0], nums2[0])
+            off1 = min(k // 2, len(nums1))
+            off2 = k - off1
+            if nums1[off1 - 1] == nums2[off2 - 1]:
+                return nums1[off1 - 1]
+            elif nums1[off1 - 1] < nums2[off2 - 1]:
+                return kth(nums1[off1:], nums2, k - off1)
             else:
-                return kth(nums1, i1, offset1, nums2, offset2 + 1, j2, halfk)
+                return kth(nums1, nums2[off2:], off1)
 
         m, n = len(nums1), len(nums2)
-        if (m + n) % 2:
-            return kth(nums1, 0, m - 1, nums2, 0, n - 1, (m + n) // 2 + 1)
-        else:
-            return (kth(nums1, 0, m - 1, nums2, 0, n - 1, (m + n) // 2) + kth(nums1, 0, m - 1, nums2, 0, n - 1, (m + n) // 2 + 1)) / 2
+        l = m + n
+        return (kth(nums1, nums2, (l + 1) // 2) + kth(nums1, nums2, (l + 2) // 2)) / 2
 
     def maxProfit3(self, prices: List[int]) -> int:
         if not prices:

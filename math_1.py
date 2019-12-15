@@ -96,15 +96,17 @@ class Solution:
         return r
 
     def myPow(self, x: float, n: int) -> float:
+        # 50
         if n < 0:
             return 1 / self.myPow(x, -n)
-        res = 1
-        while n:
-            if n % 2 == 1:
-                res *= x
-            x *= x
-            n //= 2
-        return res
+        if n == 0:
+            return 1
+        t = self.myPow(x, n // 2)
+        if n % 2 == 0:
+            return t * t
+        else:
+            return t * t * x
+
 
     def prisonAfterNDays957(self, cells: List[int], N: int) -> List[int]:
         # as there are 6 digit 0 or 1, so total is 2 ^ 6 = 64 stats. so when N is large, it will repeat. and we need
@@ -231,6 +233,14 @@ M             1000
             return 0
         s += '+'
         return cal(0)
+
+    def canMeasureWater365(self, x: int, y: int, z: int) -> bool:
+        # Think the problem like an inf large jug, use two jug size = x, y
+        # and + is pour in, - is pour out. at last z = ax + by. To have a result on this equation. z must be a
+        # multiple of the gcd(x, y)
+        def gcd(x, y):
+            return x if y == 0 else gcd(y, x % y)
+        return z == 0 or (z <= x + y and z % gcd(x, y) == 0)
 
 
 
