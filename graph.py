@@ -135,7 +135,7 @@ class Solution:
                     q.append(c)
         return res if len(res) == numCourses else []
 
-    def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+    def findItinerary587(self, tickets: List[List[str]]) -> List[str]:
         # postorder dfs
         def dfs(s):
             while hm[s]:

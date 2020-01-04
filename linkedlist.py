@@ -8,6 +8,7 @@ class Node:
         self.val = val
         self.next = next
         self.random = random
+        self.prev = self.next = self.child = None
 
 
 class ListNode:
@@ -486,6 +487,59 @@ class Solution:
         while st:
             res[st.pop()] = 0
         return res
+
+    def removeZeroSumSublists1171(self, head: ListNode) -> ListNode:
+        # there are two scenarios: [3, 2, -2, 1, -1] or [3, 2, -1, 1, -2]. two passes, first pass map prefix sum -> node
+        # and always later overwrite the repeating prefix sum. second pass get prefix sum again and directly bypass
+        # all the way to the mapped value
+        if not head:
+            return head
+        hm = {}
+        dummy = cur = ListNode(0)
+        dummy.next = head
+        presum = 0
+        while cur:
+            presum += cur.val
+            hm[presum] = cur
+            cur = cur.next
+        cur = dummy
+        presum = 0
+        while cur:
+            presum += cur.val
+            cur.next = hm[presum].next
+            cur = cur.next
+        return dummy.next
+
+    def flatten430(self, head: 'Node') -> 'Node':
+        def dfs(head: Node):
+            cur = head
+            tail = None
+            while cur: # special case, when a level contain a single node, need go in loop and record tail
+                if not cur.next:
+                    tail = cur
+                if cur.child:
+                    next = cur.next
+                    chead, ctail = dfs(cur.child)
+                    cur.next = chead
+                    chead.prev = cur
+                    cur.child = None
+                    ctail.next = next
+                    if next: # special case, when single node in level, next is None, need to set tail to child tail
+                        next.prev = ctail
+                    else:
+                        tail = ctail
+                    cur = next
+                else:
+                    cur = cur.next
+
+            return head, tail
+
+        if not head:
+            return head
+        return dfs(head)[0]
+
+
+
 
 
 

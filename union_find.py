@@ -78,6 +78,39 @@ class Solution:
                 roots[ra] = rb
         return len({find(i) for i in range(n)})
 
+    def numIslands2_305(self, m: int, n: int, positions: List[List[int]]) -> List[int]:
+        # union find if 2d array, one way is encode to 1d array roots, or use a hashmap and store tuple
+        def find(t): # pass t as a whole, t is tuple
+            if roots[t] != t:
+                roots[t] = find(roots[t])
+            return roots[t]
+
+        roots = {}
+        res = []
+        cnt = 0
+        offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        for i, j in positions:
+            if (i, j) in roots:
+                res.append(cnt)
+                continue
+            cnt += 1
+            roots[(i, j)] = i, j
+            for o in offsets:
+                x, y = i + o[0], j + o[1]
+                if (x, y) in roots:
+                    rn, rc = find((x, y)), find((i, j))
+                    if rn != rc:
+                        roots[rc] = rn
+                        cnt -= 1
+            res.append(cnt)
+        return res
+
+
+
+
+
+
+
 
 s = Solution()
 s.isBipartite([[1,3],[0,2],[1,3],[0,2]])

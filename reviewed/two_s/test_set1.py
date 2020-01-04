@@ -1,5 +1,5 @@
 from unittest import TestCase
-from two_s.set1 import Set1
+from reviewed.two_s import Set1
 
 
 class TestSet1(TestCase):

@@ -583,18 +583,7 @@ class Solution:
         self.connect(root.left)
         return root
 
-    def isPalindrome(self, x: int) -> bool:
-        if x < 0:
-            return False
-        div = 1
-        while x // div >= 10:
-            div *= 10
-        while div >= 10: # check div not x >= 10. to prevent cases like 1000000021
-            if x // div != x % 10:
-                return False
-            x = x % div // 10
-            div //= 100
-        return True
+
 
     def levelOrder2(self, root: TreeNode) -> List[List[int]]:
         res = []
@@ -1374,6 +1363,59 @@ class Solution:
         pre.right = head
         head.left = pre
         return head
+
+    def printTree655(self, root: TreeNode) -> List[List[str]]:
+        # the width of array is the width of tree(num of leaf nodes if it's the full tree), and height is height of tree
+        # then divide and conquer and every time set value to the mid point in every interval
+        def tree_depth(root: TreeNode) -> int:
+            if not root:
+                return 0
+            return max(tree_depth(root.left), tree_depth(root.right)) + 1
+
+        def dfs(root: TreeNode, l: int, r: int, level: int) -> None:
+            if not root or l > r:
+                return
+            m = l + ((r - l) >> 1)
+            res[level][m] = str(root.val)
+            dfs(root.left, l, m - 1, level + 1)
+            dfs(root.right, m + 1, r, level + 1)
+
+        if not root:
+            return []
+        depth = tree_depth(root)
+        res = [[''] * (2 ** depth - 1) for _ in range(depth)]
+        dfs(root, 0, len(res[0]) - 1, 0)
+        return res
+
+    def verifyPreorder255(self, preorder: List[int]) -> bool:
+        # like mergesort o(nlogn)
+        # def dfs(start, end, minv, maxv):
+        #     if start > end:
+        #         return True
+        #     if preorder[start] < minv or preorder[start] > maxv:
+        #         return False
+        #     i = start + 1
+        #     while i < end and preorder[i] < preorder[start]:
+        #         i += 1
+        #     return dfs(start + 1, i - 1, minv, preorder[start] - 1) and dfs(i, end, preorder[start] + 1, maxv)
+        #
+        # if not preorder:
+        #     return True
+        # return dfs(0, len(preorder) - 1, float('-inf'), float('-inf'))
+
+        # use a stack to achieve O(N). preorder does not uniquely identify a tree, but the q is whether this COULD be
+        # a valid tree's perorder. so as long as we find a pattern root -> small -> large then it's good. Keep a
+        # stack of nodes in left tree(descending) and pop when larger(in right tree), update the min threshold and check
+        st = []
+        low = float('-inf')
+        for x in preorder:
+            if x <= low:
+                return False
+            while st and x > st[-1]:
+                low = st.pop()
+            st.append(x)
+        return True
+
 
 
 

@@ -218,6 +218,72 @@ class Solution:
                 r = m - 1
         return S[res[0]: res[1] + 1] if res else ''
 
+    def checkInclusion567(self, s1: str, s2: str) -> bool:
+        # like check anagram. keep a fixed length of window = len of s1
+        if s1 == '':
+            return s2 == ''
+        elif s2 == '':
+            return False
+        c1 = collections.Counter(s1)
+        c2 = collections.Counter()
+        start = 0
+        for i in range(len(s2)):
+            c2[s2[i]] += 1
+            if c1 == c2: # because we also remove from counter, there will be old -> 0 mappings. so must delete first
+                return True
+            if i - start + 1 == len(s1):
+                c2[s2[start]] -= 1
+                if c2[s2[start]] == 0:
+                    del c2[s2[start]]
+                start += 1
+        return False
+
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        if not s:
+            return 0
+        start = maxv = 0
+        hm = {}
+
+        for i in range(len(s)):
+            if s[i] not in hm or hm[s[i]] < start:
+                maxv = max(maxv, i - start + 1)
+            else:
+                start = hm[s[i]] + 1
+            hm[s[i]] = i
+        return maxv
+
+    def lengthOfLongestSubstringTwoDistinct(self, s: str) -> int:
+        if not s:
+            return 0
+        c = collections.Counter()
+        left = maxv = 0
+
+        for i in range(len(s)):
+            c[s[i]] += 1
+            while len(c) > 2:
+                c[s[left]] -= 1
+                if c[s[left]] == 0:
+                    del c[s[left]]
+                left += 1  # this needs to happen after the deletion
+            maxv = max(maxv, i - left + 1)
+        return maxv
+
+    def lengthOfLongestSubstringKDistinct(self, s: str, k: int) -> int:
+        if not s or k < 1:
+            return 0
+        c = collections.Counter()
+        left = maxv = 0
+        for i in range(len(s)):
+            c[s[i]] += 1
+            while len(c) > k:
+                c[s[left]] -= 1
+                if c[s[left]] == 0:
+                    del c[s[left]]
+                left += 1
+            maxv = max(maxv, i - left + 1)
+        return maxv
+
+
 
 
 

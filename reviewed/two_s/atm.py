@@ -89,8 +89,8 @@ State design pattern: Actions changes according to internal state, as if the imp
 
 
 class ATMState(Enum):
-    NO_CARD = 0
-    HAS_CARD = 1
+    GREETING = 0
+    ASK_PIN = 1
     AUTHORIZED = 2
     MAIN_MENU = 3
 
@@ -100,6 +100,8 @@ class ATMState(Enum):
 
     DEPOSIT_SELECTED = 20
     DEPOSIT_ACCEPTED = 21
+
+    ENDING_MENU = 30
 
 
 class ATM:
@@ -111,12 +113,23 @@ class ATM:
         self.pin_error = 0
 
     states_map = {
-        ATMState.NO_CARD: lambda: NoCardState(),
-        ATMState.HAS_CARD: lambda: HasCardState(),
+        ATMState.GREETING: lambda: GreetingState(),
+        ATMState.ASK_PIN: lambda: AskPinState(),
+        ATMState.MAIN_MENU: lambda: MainMenuState(),
     }
 
     def set_state(self, state: ATMState) -> None:
-        self.state_obj = ATM.states_map[state]().set_atm(self)
+        self.state_obj = ATM.states_map[state](self)
+
+    def insert_card(self):
+        self.state_obj.insert_card()
+
+    def ask_pin(self) -> int:
+        return self.state_obj.ask_pin()
+
+    def log_in_user(self, pin: str):
+        self.uid = AccountStore.verify_user(self.card, pin)
+        return self.uid
 
     def set_withdraw_amount(self, amount) -> None:
         self.withdraw_amount = amount
@@ -146,15 +159,7 @@ class ATM:
 
         CardHandler.create_card(uid)
 
-    def log_in_user(self, pin: str):
-        self.uid = AccountStore.verify_user(self.card, pin)
-        return self.uid
 
-    def insert_card(self):
-        self.state_obj.insert_card()
-
-    def ask_pin(self) -> int:
-        return self.state_obj.ask_pin()
 
     def get_input(self):
         self.state_obj.get_input()
@@ -173,6 +178,9 @@ class ATM:
 
     def show_menu(self):
         self.state_obj.show_menu()
+
+    def show_ending_menu(self):
+        self.state_obj.show_ending_menu()
 
 
 class BaseState(ABC):
@@ -211,30 +219,36 @@ class BaseState(ABC):
     def show_menu(self):
         pass
 
+    def show_ending_menu(self):
+        pass
 
-class NoCardState(BaseState):
+
+class GreetingState(BaseState):
     def insert_card(self) -> None:
         card = CardHandler.read_card()
         if not card:
             Display.show_error('Card cannot be read')
         self.atm.card = card
-        self.atm.set_state(ATMState.HAS_CARD)
+        self.atm.set_state(ATMState.ASK_PIN)
+        self.atm.ask_pin()
 
 
-class HasCardState(BaseState):
+class AskPinState(BaseState):
     def ask_pin(self) -> int:
         pin = Display.read_input('Enter pin code:')
         uid = self.atm.log_in_user(pin)
         if uid:
             self.atm.set_state(ATMState.MAIN_MENU)
+            self.atm.show_menu()
             return 0
         else:
             self.atm.pin_error += 1
             if self.atm.pin_error == 3:
                 self.atm.lock_card()
-                self.atm.set_state(ATMState.NO_CARD)
+                self.atm.set_state(ATMState.GREETING)
             else:
-                self.atm.set_state(ATMState.HAS_CARD)
+                self.atm.set_state(ATMState.ASK_PIN)
+                self.atm.ask_pin()
             return -1
 
 
@@ -243,28 +257,37 @@ class MainMenuState(BaseState):
         mode = int(Display.read_input('Choose 1. Withdraw 2. Deposit 3. Log out'))
         if mode == 1:
             self.atm.set_state(ATMState.WITHDRAW_SELECTED)
+            self.atm.ask_withdraw_amount()
         elif mode == 2:
             self.atm.set_state(ATMState.DEPOSIT_SELECTED)
+            self.atm.ask_deposit_money()
         elif mode == 3:
             CardHandler.return_card()
-            self.atm.set_state(ATMState.NO_CARD)
+            self.atm.set_state(ATMState.GREETING)
         return mode
 
 
 class WithdrawSelected(BaseState):
     def ask_withdraw_amount(self):
         amount = int(Display.read_input('Enter withdraw amount'))
-        self.atm.set_withdraw_amount(amount)
+        res = self.atm.check_balance(amount)
+        if res == 0:
+            self.atm.set_state(ATMState.WITHDRAW_AMOUNT_ENTERED)
+            self.atm.withdraw_amount(amount)
+            self.atm.set_state(ATMState.ENDING_MENU)
+            self.atm.show_ending_menu()
+
         self.atm.set_state(ATMState.WITHDRAW_AMOUNT_ENTERED)
 
 
-class WithdrawAmountEntered(BaseState):
+class WithdrawExecuteState(BaseState):
     def withdraw(self) -> int:
         balance = self.atm.get_balance()
         if self.atm.withdraw_amount <= balance:
             CashDispenser.dispense(self.atm.withdraw_amount)
             self.atm.set_balance(balance - self.atm.withdraw_amount)
-            self.atm.set_state(ATMState.MAIN_MENU)
+            self.atm.set_state(ATMState.ENDING_MENU)
+            self.atm.show_ending_menu()
             return 0
         else:
             Display.show_error('Balance is not enough')
@@ -283,6 +306,18 @@ class DepositSelected(BaseState):
         amount = CashInTake.take()
         self.atm.set_balance(self.atm.get_balance() + amount)
         self.atm.set_state(ATMState.MAIN_MENU)
+
+
+class EndingMenuState(BaseState):
+    def show_ending_menu(self) -> None:
+        mode = int(Display.read_input('Choose 1. Print Receipt 2. Send email 3. Log out 4. Go to main menu'))
+        if mode == 3:
+            self.atm.log_out()
+            self.atm.set_state(ATMState.GREETING)
+        elif mode == 4:
+            self.atm.set_state(ATMState.MAIN_MENU)
+            self.atm.show_menu()
+
 
 
 def main():

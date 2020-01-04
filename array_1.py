@@ -3,6 +3,11 @@ import collections
 import random
 
 
+class Interval:
+    def __init__(self, start: int = None, end: int = None):
+        self.start = start
+        self.end = end
+
 class Solution384:
 
     def __init__(self, nums: List[int]):
@@ -100,6 +105,31 @@ class WordDistance244:
             else:
                 i2 += 1
         return minv
+
+
+class ExamRoom855:
+    # similar to 849, either sit in the middle of two person, or sit on the right side (because first time always sit 0)
+    def __init__(self, N: int):
+        self.n = N
+        self.seated = []
+
+    def seat(self) -> int:
+        res = idx = 0
+        if self.seated:
+            maxv = self.seated[0] # the 0th people may leave, so maxv MUST init to the first person, not 0
+            for i in range(1, len(self.seated)):
+                dist = (self.seated[i] - self.seated[i - 1]) // 2
+                if dist > maxv:
+                    maxv = dist
+                    res = (self.seated[i] + self.seated[i - 1]) // 2
+                    idx = i
+            if self.n - 1 - self.seated[-1] > maxv:
+                res = idx = self.n - 1 # python insert(idx, x) if idx >= len(array), just append to the end
+        self.seated.insert(idx, res) # dont forget for 0 case, we still need to insert
+        return res
+
+    def leave(self, p: int) -> None:
+        self.seated.remove(p)
 
 class Solution:
 
@@ -1308,6 +1338,38 @@ class Solution:
             st.append(nums[i])
         return False
 
+    def maxDistToClosest849(self, seats: List[int]) -> int:
+        # max distance could be start of array, in the middle of two 1s, right end of array
+        res, last = 0, -1
+        for i in range(len(seats)):
+            if seats[i] == 1:
+                res = max(res, i if last == -1 else (i - last) // 2)
+                last = i
+        res = max(res, len(seats) - 1 - last)
+        return res
+
+    def employeeFreeTime759(self, schedule: '[[Interval]]') -> '[Interval]':
+        # like merge intervals, first convert to 1d array, then use end to compare next start and absorb if overlap
+        intervals = [i for s in schedule for i in s]
+        intervals.sort(key=lambda i: i.start)
+        res = []
+        t = intervals[0]
+        for i in intervals[1:]:
+            if i.start > t.end:
+                res.append(Interval(t.end, i.start))
+                t = i # dont forget to move t
+            else:
+                t = t if t.end > i.end else i
+        return res
+
+    def rotate48(self, matrix: List[List[int]]) -> None:
+        # first reflect on diagnal, then reflect on y-axis
+        n = len(matrix)
+        for i in range(n):
+            for j in range(i + 1, n):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+        for i in range(n):
+            matrix[i] = matrix[i][::-1]
 
 
 

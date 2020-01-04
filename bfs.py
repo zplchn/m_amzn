@@ -273,6 +273,122 @@ class Solution:
             q.extend(next_states)
         return False
 
+    def numBusesToDestination815(self, routes: List[List[int]], S: int, T: int) -> int:
+        # Create a graph stop -> [routes]. So problem become BFS when search fewest buses to take, each level is all
+        # stops that can be reached by taking any bus from this stop. and then the next level is transfer at any stop to
+        # another bus. And BFS shortest path will reach first to destination stop with fewest levels(each level is
+        # all stops can be reached)
+        if not routes or not routes[0] or S == T:
+            return 0
+        graph = collections.defaultdict(list)
+        for r in range(len(routes)):
+            for s in range(len(routes[r])): # here cannot use len(routes[0]) as each row length may be different
+                graph[routes[r][s]].append(r)
+        level = 0
+        q = collections.deque([S])
+        visited = set()
+        while q:
+            for i in range(len(q)):
+                s = q.popleft()
+                for r in graph[s]:
+                    if r not in visited:
+                        visited.add(r)
+                        for stop in routes[r]:
+                            if stop == T:
+                                return level + 1
+                            q.append(stop)
+            level += 1
+        return -1
+
+    def openLock752(self, deadends: List[str], target: str) -> int:
+        dead = set(deadends)
+        level = 0
+        if '0000' in dead:
+            return -1
+        q = collections.deque(['0000'])
+        visited = {'0000'}
+
+        while q:
+            level += 1
+            for i in range(len(q)):
+                x = q.popleft()
+                for i in range(4):
+                    for d in [-1, 1]:
+                        nx = x[:i] + str((int(x[i]) + d) % 10) + x[i + 1:] # str slice is better than convert to list
+                        if nx == target:
+                            return level
+                        if nx not in dead and nx not in visited:
+                            visited.add(nx)
+                            q.append(nx)
+        return -1
+
+    def slidingPuzzle773(self, board: List[List[int]]) -> int:
+        # Think of each state as a node, and find the shortest path for inital node to traverse to goal node
+        combi = ''.join(str(board[i][j]) for i in range(len(board)) for j in range(len(board[0])))
+        idx = combi.index('0')
+        q = collections.deque([(combi, (idx // len(board[0]), idx % len(board[0])))]) # use len(board[0]) in both / %
+        visited = {combi}
+        level = 0
+        offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        while q:
+            for i in range(len(q)):
+                combi, (i, j) = q.popleft()
+                if combi == '123450':
+                    return level
+                id0 = i * len(board[0]) + j
+                # l = list(combi)
+                for o in offsets:
+                    l = list(combi) # for string memoing, must every time convert to list in each chagne
+                    x, y = i + o[0], j + o[1]
+                    if 0 <= x < len(board) and 0 <= y < len(board[0]):
+                        nid0 = x * len(board[0]) + y
+                        l[nid0], l[id0] = l[id0], l[nid0]
+                        t = ''.join(l)
+                        if t not in visited:
+                            visited.add(t)
+                            q.append((t, (x, y)))
+            level += 1
+        return -1
+
+    def racecar818(self, target: int) -> int:
+        # because every time there are two choices, go A or go R. And if we just go A if less than target,
+        # and R > target, it is like greedy, which does not guarantee shortest path. We need to enumerate all states,
+        # which constructs a graph, then BFS can guarantee shortest path.
+        # if AAAAA, it's 0 -> 1 -> 3 -> 7 -> 15 -> 31. (2**n - 1), we want to limit the children range, cannot < 0 or
+        # > target * 2. why * 2. say target is 8 - 14, we are at 7, so we can go past 15 but no need to 31.
+        q = collections.deque([(0, 1)]) # (position, speed)
+        visited = {(0, 1)}
+        level = 0
+        while q:
+            level += 1
+            for i in range(len(q)):
+                p, s = q.popleft()
+                if p == target:
+                    return level - 1 # For # of nodes, returnn level, for # of transitions/steps, return level - 1
+
+                next_states = [(p + s, s * 2), (p, -1 if s > 0 else 1)]
+                for ns in next_states:
+                    if ns not in visited and 0 < ns[0] < target * 2:
+                        visited.add(ns)
+                        q.append(ns)
+        return -1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

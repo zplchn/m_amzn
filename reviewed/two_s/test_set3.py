@@ -1,10 +1,14 @@
 from unittest import TestCase
-from two_s.set3 import LRUCache
+from reviewed.two_s import LRUCache
 
 
 class TestLRUCache(TestCase):
     def setUp(self) -> None:
         self.lru = LRUCache(10)
+
+    def test_invalid_cap(self) -> None:
+        with self.assertRaises(ValueError):
+            LRUCache(-1)
 
     def test_empty(self) -> None:
         self.assertEqual(self.lru.get('a'), -1)

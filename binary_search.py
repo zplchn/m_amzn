@@ -1,5 +1,6 @@
 from typing import List
 import collections
+import bisect
 
 
 class TimeMap981:
@@ -165,6 +166,56 @@ class Solution:
             else:
                 l = m + 1
         return -1
+
+    def findClosestElements658(self, arr: List[int], k: int, x: int) -> List[int]:
+        # 3 cases: 1. x is < arr[0], so first k; 2. x > arr[-1], so arr[-k:] 3. x in the middle, bisect to find the
+        # first element >= x. so take a window of k on the left of x, and a window of k on the right, shrink until = k
+        # Two pointer should use the SHRINK strategy rather than expand, so edge cases(go beyong index) is handled first
+        # O(logN + k)
+        if not arr or k == 0:
+            return []
+        idx = bisect.bisect_left(arr, x)
+        if idx == 0:
+            return arr[:k]
+        elif idx == len(arr):
+            return arr[-k:]
+        else:
+            l, r = max(idx - k, 0), min(len(arr) - 1, idx + k - 1)
+            while r - l + 1 > k:
+                if abs(arr[l] - x) > abs(arr[r] - x):
+                    l += 1
+                else:
+                    r -= 1
+            return arr[l: r + 1]
+
+    def guessNumber374(self, n: int) -> int:
+        def guess(num: int) -> int:
+            pass
+        l, r = 1, n
+        while l <= r:
+            m = l + ((r - l) >> 1)
+            if guess(m) == 0:
+                return m
+            elif guess(m) == -1:
+                r = m - 1
+            else:
+                l = m + 1
+        return -1
+
+    def fixedPoint1064(self, A: List[int]) -> int:
+        if not A:
+            return -1
+        l, r = 0, len(A) - 1
+        while l <= r:
+            m = l + ((r - l) >> 1)
+            if A[m] < m:
+                l = m + 1
+            else:
+                r = m - 1
+        return l if A[l] == l < len(A) else -1 # we basically find the insertion place which [-10], [-10, 3] cases
+
+
+
 
 
 

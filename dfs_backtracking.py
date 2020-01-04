@@ -599,6 +599,107 @@ class Solution:
         dfs(s, 0, c1, c2)
         return res
 
+    class Employee:
+        def __init__(self, id: int, importance: int, subordinates: List[int]):
+            # It's the unique id of each node.
+            # unique id of this employee
+            self.id = id
+            # the importance value of this employee
+            self.importance = importance
+            # the id of direct subordinates
+            self.subordinates = subordinates
+
+    def getImportance690(self, employees: List['Employee'], id: int) -> int:
+        def dfs(id: int) -> int:
+            return hm[id].importance + sum(dfs(x) for x in hm[id].subordinates) # sum(empty sequence) = 0.
+        if not employees:
+            return 0
+
+        hm = {}
+        for e in employees:
+            hm[e.id] = e
+
+        return dfs(id)
+
+    class NestedInteger:
+       def __init__(self, value=None):
+           """
+           If value is not specified, initializes an empty list.
+           Otherwise initializes a single integer equal to value.
+           """
+
+       def isInteger(self):
+           """
+           @return True if this NestedInteger holds a single integer, rather than a nested list.
+           :rtype bool
+           """
+
+       def add(self, elem):
+           """
+           Set this NestedInteger to hold a nested list and adds a nested integer elem to it.
+           :rtype void
+           """
+
+       def setInteger(self, value):
+           """
+           Set this NestedInteger to hold a single integer equal to value.
+           :rtype void
+           """
+
+       def getInteger(self):
+           """
+           @return the single integer that this NestedInteger holds, if it holds a single integer
+           Return None if this NestedInteger holds a nested list
+           :rtype int
+           """
+
+       def getList(self):
+           """
+           @return the nested list that this NestedInteger holds, if it holds a nested list
+           Return None if this NestedInteger holds a single integer
+           :rtype List[NestedInteger]
+           """
+
+    def depthSum339(self, nestedList: List[NestedInteger]) -> int:
+        # [1,[4,[6]]]. -> 1 * 1 + 4 * 2 + 6 * 3. Note once 6 * 3 = 18, it will not * 2 again. so need seperate int list
+        def dfs(level: int, combi) -> int:
+            res = children = 0
+            for x in combi:
+                if x.isInteger():
+                    res += x.getInteger()
+                else:
+                    children += dfs(level + 1, x.getList())
+            # print(level, res)
+            return level * res + children
+
+        if not nestedList:
+            return 0
+        return dfs(1, nestedList)
+
+    def depthSumInverse364(self, nestedList: List[NestedInteger]) -> int:
+        # each time seperate integer and list, cache the list and sum the integers. and add the prelevel sum
+        # everytime enter a new level so a sum will be added the depth times. every time handle one level of cache so
+        # depth is accurate
+        if not nestedList:
+            return 0
+        sumv = res = 0
+
+        while nestedList:
+            cache = []
+            for x in nestedList:
+                if x.isInteger():
+                    sumv += x.getInteger()
+                else:
+                    cache.extend(x.getList())
+            res += sumv
+            nestedList = cache
+        return res
+
+
+
+
+
+
 
 
 

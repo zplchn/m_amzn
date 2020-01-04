@@ -12,6 +12,7 @@ class Rope:
         pass
 
     def __len__(self):
+        pass
 
 
 

@@ -47,6 +47,33 @@ class LogSystem635:
         start, end = s[:idx], e[:idx]
         return [id for id, ts in self.data if start <= ts[:idx] <= end]
 
+class Solution158:
+    def __init__(self):
+        self.q = collections.deque()
+
+    def read158(self, buf, n):
+        def read4(buf):
+            pass
+        """
+        :type buf: Destination buffer (List[str])
+        :type n: Number of characters to read (int)
+        :rtype: The number of actual characters read (int)
+        """
+        # Two cases, if there is chars in q, read it until needed, may leave some after read; when nothing in q,
+        # read from buffer and enqueue. 2 cases: need 6 have 8(fail when i == n, need 8 have 6(fail when read = 0)
+        i = 0
+        while i < n:
+            if self.q:
+                buf[i] = self.q.popleft()
+                i += 1
+            else:
+                buf4 = [''] * 4
+                x = read4(buf4)
+                if x == 0:
+                    break
+                self.q.extend(buf4[:x])
+        return i
+
 
 class Solution:
     def anagram(self, s, t):
@@ -225,50 +252,7 @@ class Solution:
             n //= 26
         return ''.join(reversed(res))
 
-    def lengthOfLongestSubstring(self, s: str) -> int:
-        if not s:
-            return 0
-        start = maxv = 0
-        hm = {}
 
-        for i in range(len(s)):
-            if s[i] not in hm or hm[s[i]] < start:
-                maxv = max(maxv, i - start + 1)
-            else:
-                start = hm[s[i]] + 1
-            hm[s[i]] = i
-        return maxv
-
-    def lengthOfLongestSubstringTwoDistinct(self, s: str) -> int:
-        if not s:
-            return 0
-        hm = {}
-        left = maxv = 0
-
-        for i in range(len(s)):
-            hm[s[i]] = hm.get(s[i], 0) + 1
-            while len(hm) > 2:
-                hm[s[left]] -= 1
-                if hm[s[left]] == 0:
-                    del hm[s[left]]
-                left += 1  # this needs to happen after the deletion
-            maxv = max(maxv, i - left + 1)
-        return maxv
-
-    def lengthOfLongestSubstringKDistinct(self, s: str, k: int) -> int:
-        if not s or k < 1:
-            return 0
-        hm = {}
-        left = maxv = 0
-        for i in range(len(s)):
-            hm[s[i]] = hm.get(s[i], 0) + 1
-            while len(hm) > k:
-                hm[s[left]] -= 1
-                if hm[s[left]] == 0:
-                    del hm[s[left]]
-                left += 1
-            maxv = max(maxv, i - left + 1)
-        return maxv
 
     def lengthOfLastWord(self, s: str) -> int:
         # if not s:                not ' ' is False. An string with space is Truthy
@@ -567,10 +551,62 @@ class Solution:
                 res -= 1
         return res // lens
 
+    def longestSubstring(self, s: str, k: int) -> int:
+        # 395. since it's longest, sliding window not fit. we count appearance for each char, for the char appears
+        # less than k times, it wont be contained in any result substring. so keep splitting until no such chars.
+        # since only 26 cuts at most, and each level is o(n) for counter and o(n) for split, so it's o(26n^2) -> o(n*2)
+        if not s or len(s) < k:
+            return 0
+        c = collections.Counter(s)
+        for x in s:
+            if c[x] < k:
+                return max(self.longestSubstring(ss, k) for ss in s.split(x))
+        return len(s)
+
+    def backspaceCompare844(self, S: str, T: str) -> bool:
+        # we count num of # and increase if we meet a new # or decrease if non#. Right to left so we cancel characters.
+        # two scenarios: a a # and a; a # a and a. in second case, we still need to loop if s or t is not empty
+        i, j = len(S) - 1, len(T) - 1
+        backi, backj = 0, 0
+        while i >= 0 or j >= 0:
+            while i >= 0 and (backi > 0 or S[i] == '#'):
+                backi += 1 if S[i] == '#' else -1
+                i -= 1
+            while j >= 0 and (backj > 0 or T[j] == '#'):
+                backj += 1 if T[j] == '#' else -1
+                j -= 1
+            if not (i >= 0 and j >= 0 and S[i] == T[j]):
+                break
+            i, j = i - 1, j - 1
+        return i == j == -1 # must include == -1. eg 'a', 'b' when both are nonexhausted, still need to fail
+
+    def validIPAddress468(self, IP: str) -> str:
+        def check_ipv4():
+            ips = IP.split('.')
+            return len(ips) == 4 and all(w.isdigit() and 0 <= int(w) <= 255 and not (len(w) > 1 and w[0] == '0') for w \
+                    in ips)
+
+        def check_ipv6():
+            ips = IP.split(':')
+            return len(ips) == 8 and all(0 < len(w) <= 4 and all(c in string.hexdigits for c in w) for w in ips)
+
+        if '.' in IP and check_ipv4():
+            return 'IPv4'
+        elif ':' in IP and check_ipv6():
+            return 'IPv6'
+        return 'Neither'
+
+
+
+
+
 
 
 s = Solution()
-print(s.wordsTyping418(["try","to","be","better"], 10000, 9001))
+# print(s.wordsTyping418(["try","to","be","better"], 10000, 9001))
+# print(s.backspaceCompare844('c', 'b'))
+
+print(s.validIPAddress468("2001:0db8:85a3:0:0:8A2E:0370:7334"))
 
 
 

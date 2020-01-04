@@ -388,6 +388,36 @@ class Solution:
                     dp[i + 1][j + 1] = (s[i] == p[j] or p[j] == '.') and dp[i][j]
         return dp[-1][-1]
 
+    def numSquares279(self, n: int) -> int:
+        dp = [n + 1] * (n + 1)
+        dp[0] = 0
+        for i in range(n + 1):
+            j = 1
+            while j * j <= i:
+                dp[i] = min(dp[i], dp[i - j * j] + 1)
+                j += 1
+        return dp[-1]
+
+    def numDecodings91(self, s: str) -> int:
+        if not s:
+            return 0
+        if s[0] == '0':
+            return 0
+        dp = [1, 1]
+        for i in range(1, len(s)):
+            if s[i] == '0' and s[i-1] not in '12':
+                return 0
+            x = 0
+            if '10' <= s[i - 1: i + 1] <= '26':
+                x += dp[0]
+            if s[i] != '0':
+                x += dp[1]
+            dp[0], dp[1] = dp[1], x
+        return dp[1]
+
+
+
+
 
 
 

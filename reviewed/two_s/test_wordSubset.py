@@ -1,5 +1,5 @@
 from unittest import TestCase
-from two_s.set4 import WordSubset
+from reviewed.two_s import WordSubset
 
 
 class TestWordSubset(TestCase):

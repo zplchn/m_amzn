@@ -1,5 +1,5 @@
-from typing import List
-
+from typing import List, Tuple
+import collections
 
 class Solution:
     def isPowerOfFour(self, num: int) -> bool:
@@ -202,7 +202,7 @@ M             1000
         return 0 if minv == float('inf') else minv
 
     def calculate772(self, s: str) -> int:
-        def cal(i: int):
+        def cal(i: int) -> Tuple[int, int]:
             st = []
             num = 0
             sign = '+'
@@ -227,12 +227,12 @@ M             1000
                     sign = s[i]
                     num = 0
                 i += 1
-            return sum(st)
+            return sum(st), i
 
         if not s:
             return 0
         s += '+'
-        return cal(0)
+        return cal(0)[0]
 
     def canMeasureWater365(self, x: int, y: int, z: int) -> bool:
         # Think the problem like an inf large jug, use two jug size = x, y
@@ -242,14 +242,120 @@ M             1000
             return x if y == 0 else gcd(y, x % y)
         return z == 0 or (z <= x + y and z % gcd(x, y) == 0)
 
+    def countPrimes204(self, n: int) -> int:
+        # if we know 2 is prime, then any multiple of 2, 2 * m <= n will not be prime, we can mark them off in a table
+        # evertime find a number not marked, then inner loop to mark not prime. Outer loop starts from 2, stop sqrt(n).
+        # inner loop start from i * 2.
+        if n < 2: return 0
+        marker = [True] * (n + 1)
+        i = 2
+        while i * i <= n: # 12 = 2 * 6, 3 * 4, no need to calculate 4 * 3, 6 * 2
+            if marker[i]:
+                for j in range(i * i, n + 1, i):
+                    marker[j] = False
+            i += 1
+        res = 0
+        for i in range(2, n):
+            res += 1 if marker[i] else 0
+        return res
+
+    def isRectangleCover391(self, rectangles: List[List[int]]) -> bool:
+        # Think of 2 sub rectangle if they can form one. 1. if they overlap, sum of area != final rec. We can check
+        # global min and max so we know supposedly the final rec 4 cornors. 2. if they apart from each other, area will equal
+        # but there will be more corners, how do we correctly count corner? we can use a set to record 4 corners for every
+        # rectangle, we a point appear again, we cancel it and remove from the hs. so the inner corners should all cancel in
+        # pairs and the final set should only contain the final 4 corners.
+        hs = set()
+        area = 0
+        minx, miny, maxx, maxy = float('inf'), float('inf'), float('-inf'), float('-inf')
+        for x1, y1, x2, y2 in rectangles:
+            minx = min(minx, x1)
+            miny = min(miny, y1)
+            maxx, maxy = max(maxx, x2), max(maxy, y2)
+            area += (x2 - x1) * (y2 - y1)
+
+            for p in [(x1, y1), (x1, y2), (x2, y1), (x2, y2)]:
+                if p in hs:
+                    hs.remove(p)
+                else:
+                    hs.add(p)
+        return hs == {(minx, miny), (minx, maxy), (maxx, miny), (maxx, maxy)} and area == (maxx - minx) * (maxy - miny)
+
+    def subtractProductAndSum1281(self, n: int) -> int:
+        sumv, product = 0, 1
+        while n:
+            sumv += n % 10
+            product *= n % 10
+            n //= 10
+        return product - sumv
+
+    def isPalindrome9(self, x: int) -> bool:
+        if x < 0:
+            return False
+        div = 1
+        while x // div >= 10:
+            div *= 10
+        while x: # must compare till x, not >= 10. 10000021. we need 2 to fail
+            if x // div != x % 10:
+                return False
+            x = x % div // 10
+            div //= 100
+        return True
+
+    def maxPoints149(self, points: List[List[int]]) -> int:
+        # Basic idea is to calculate slope between two every pairs, each match with one after it. Some special cases:
+        # 1. same points appear again, need to count seperately 2. slope = 90 degree/inf
+        def gcd(x, y):
+            return x if y == 0 else gcd(y, x % y)
+
+        if len(points) <= 2:
+            return len(points)
+        res = 0
+        for i in range(len(points) - 1):
+            hm = {}
+            same = 0
+            slope = None
+            for j in range(i + 1, len(points)):
+                dx, dy = points[i][0] - points[j][0], points[i][1] - points[j][1]
+                if dx == dy == 0:
+                    same += 1
+                    continue
+                if dx == 0:
+                    slope = float('inf')
+                else:
+                    t = gcd(dx, dy)
+                    slope = (dy // t, dx // t)
+                hm[slope] = 2 if slope not in hm else hm[slope] + 1
+            res = max(res, max(hm.values(), default=1) + same) # default=1 to handle all same points case!
+        return res
+
+
+
+
+
+
+
+
+
+
+
+def gcd(x, y):
+    return x if y == 0 else gcd(y, x % y)
+
+print(gcd(94911151,94911150))
+print(gcd(94911152,94911151))
+
 
 
 
 s = Solution()
 res = []
 # for x in [8, 28, 328, 5328, 25328]:
-for x in [123]:
-    res += [s.numberToWords273(x)]
+# for x in [123]:
+#     res += [s.numberToWords273(x)]
+
+
+print(s.isRectangleCover391([[1,1,3,3],[3,1,4,2],[3,2,4,4],[1,3,2,4],[2,3,3,4]]))
 
 for y in res:
     print(y)

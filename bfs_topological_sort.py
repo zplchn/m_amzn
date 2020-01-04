@@ -1,6 +1,15 @@
 import collections
 from typing import List
 
+'''
+Directed graph problems:
+
+course schedules : traverse by all nodes, using topological sort / BFS indegrees
+reconstruct itinerary: traverse by ALL edges, (circle allowed), using DFS
+
+
+'''
+
 
 class Solution:
     def alienOrder269(self, words: List[str]) -> str:

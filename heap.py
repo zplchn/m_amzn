@@ -186,6 +186,72 @@ class Solution:
                 heapq.heappush(heap, hm[i].pop())
         return res
 
+    def smallestRange632(self, nums: List[List[int]]) -> List[int]:
+        # we need to have one head of each list [e1 e2, e3..] and the range will be (min_e, max_e). and the min_e
+        # bump to the next and then find the new min and new max. on every iteration, we have a range to cover all lists. so
+        # q is to keep update this range to shortest. we can use a pq to quickly find the min every time and premax for max
+        if not nums:
+            return []
+        heap = [(l[0], i, 0) for i, l in enumerate(nums)]
+        heapq.heapify(heap)
+        maxv = max(h[0] for h in heap)
+        minl = float('inf')
+        res = []
+        while heap:
+            x, i, j = heapq.heappop(heap)
+            if maxv - x < minl:
+                minl = maxv - x
+                res = [x, maxv]
+            if j != len(nums[i]) - 1:
+                heapq.heappush(heap, (nums[i][j + 1], i, j + 1))
+                maxv = max(maxv, nums[i][j + 1])
+            else:
+                break
+        return res
+
+    def trapRainWater407(self, heightMap: List[List[int]]) -> int:
+        # Think 2d case, we used two pointers and always picked the smaller one, push it inner side and for if inner
+        # node is higer, we declare new boundary. if inner node is lower, we collect rain and 'replace' it use the
+        # edge height and continue push inwards. On the 3d case, instead of two pointers, we use a circle to declare
+        # boundary, initially 4 edges outside, and then every time we find the smallest one which decides whether
+        # rain can be collected. we search its neighbours and if neighbour is higher, we cannot collect rain just
+        # enqueue. If the neighbour is shorter, we collect rain and we use the edge value to replace the neighbour
+        if not heightMap or not heightMap[0]:
+            return 0
+        heap = []
+        visited = set()
+        for j in range(len(heightMap[0])):
+            heap.append((heightMap[0][j], 0, j))
+            heap.append((heightMap[len(heightMap) - 1][j], len(heightMap) - 1, j))
+            visited.add((0, j))
+            visited.add((len(heightMap) - 1, j))
+        for i in range(len(heightMap)):
+            heap.append((heightMap[i][0], i, 0))
+            heap.append((heightMap[i][len(heightMap[i]) - 1], i, len(heightMap[i]) - 1))
+            visited.add((i, 0))
+            visited.add((i, len(heightMap[i]) - 1))
+        heapq.heapify(heap)
+        res = 0
+        offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        while heap:
+            h, i, j = heapq.heappop(heap)
+            for o in offsets:
+                x, y = i + o[0], j + o[1]
+                if 0 <= x < len(heightMap) and 0 <= y < len(heightMap[0]) and (x, y) not in visited:
+                    visited.add((x, y))
+                    # if heightMap[x][y] < heightMap[i][j]:
+                    if heightMap[x][y] < h:  # the node already can use virtual height(with water included)
+                        res += h - heightMap[x][y]
+                        heapq.heappush(heap, (h, x, y))
+                    else:
+                        heapq.heappush(heap, (heightMap[x][y], x, y))
+        return res
+
+
+
+
+
+
 
 
 

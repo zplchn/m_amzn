@@ -1,7 +1,10 @@
+from queue import Queue
+
 # Set1:
 # 1. Polish + Delete subtree
 # 2. Two queues + Web slow
 # 3. Wildcard matching
+
 
 class Set1:
     '''
@@ -14,7 +17,7 @@ class Set1:
         # cur_ts = blocking_queue1.getNext()
         # q1.append(cur_ts)
         #
-        # while q2 and cur_ts - q2[0] > 1:  # pop() for better performance in the future, explain it!!
+        # while q2 and cur_ts - q2[0] > 1:
         #     q2.popleft()  # deque, for performance
         #
         # for ts in q2:
@@ -23,6 +26,8 @@ class Set1:
         #     else:
         #         break
         pass
+
+
 
     def isMatch(self, s: str, p: str) -> bool:
         # use dp[i][j] means i chars in s and j chars in p match
@@ -42,3 +47,4 @@ class Set1:
                 else:
                     dp[i + 1][j + 1] = (s[i] == p[j] or p[j] == '?') and dp[i][j]
         return dp[-1][-1]
+

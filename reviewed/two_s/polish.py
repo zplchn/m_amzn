@@ -8,14 +8,9 @@ class BaseExpr(ABC):
     def eval(self):
         pass
 
-    @abstractmethod
-    def __init__(self):
-        pass
-
 
 class Operand(BaseExpr):
     def __init__(self, val):
-        super().__init__()
         self._val = float(val)
 
     def eval(self):
@@ -24,7 +19,6 @@ class Operand(BaseExpr):
 
 class BinaryOperator(BaseExpr):
     def __init__(self, l_expr, r_expr):
-        super().__init__()
         self._l = l_expr
         self._r = r_expr
 

@@ -116,4 +116,26 @@ class Solution:
             i += 1
         return steps if reach >= len(nums) - 1 else -1
 
+    def intersectionSizeTwo757(self, intervals: List[List[int]]) -> int:
+        # Greedy. two cases: [1, 4], [4, 8], [6, 10]. Sort by end and every time we want to make sure our goal set to
+        # have the two largest number so we can cover most. when new interval start > pre(result set) end,
+        # we need to add the two largest ones in the interval; when new interval start <= pre end, there may be at
+        # least one point overlap(pre[1) and if start <= pre[0] then no need to add, otherwise need to add one more
+        intervals.sort(key=lambda l: l[1])
+        pre = []
+        res = 0
+        for s, t in intervals:
+            if not pre or pre[1] < s:
+                pre = [t - 1, t]
+                res += 2
+            elif pre[0] < s:
+                pre = [pre[1], t]
+                res += 1
+        return res
+
+
+s = Solution()
+res = s.intersectionSizeTwo757([[18, 24], [24, 33], [24, 33], [7, 34], [13, 37], [29, 37], [42, 43]])
+print(res)
+
 

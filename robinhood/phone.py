@@ -81,8 +81,6 @@ class Solution:
 
     '''
     def max_value(self, options: List[List[int]], m: int) -> int:
-        # def custom_sort(l: List[int]):
-        #     return l[1] / l[0] if l[1] > l[0] else 0
         options.sort(key=lambda l: l[1] / l[0], reverse=True)
         res = 0
         i = 0
@@ -121,10 +119,13 @@ input = [("150", "10", "buy"), ("165", "7", "sell"), ("168", "3", "buy"), ("155"
 # res = s.total_executed_shares(input)
 # input = [[15, 45, 3], [25, 35, 3], [40, 50, 3], [30, 25, 4]]
 
-input = [[10, 5, 3], [8, 5, 2]]
-res = s.max_value(input, 140)
-print(res)
+# input = [[10, 5, 3], [8, 5, 2]]
+# res = s.max_value(input, 140)
+# print(res)
 
+
+def t() -> Tuple[int, int, int]:
+    return 1
 
 
 

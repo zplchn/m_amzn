@@ -1,4 +1,5 @@
 import collections
+import bisect
 from typing import List, Tuple, Optional
 
 '''
@@ -46,7 +47,69 @@ class WordSubset:
                     break
         return res
 
-    
+
+class MultiStack:
+    def __init__(self):
+        self.st = []
+        self.minst = []
+        self.maxst = []
+        self.sumv = 0
+
+        self.hm_key = collections.Counter()
+        self.hm_count = collections.defaultdict(set)
+        self.maxc = 0
+
+        self.sorted_st = []
+
+    def push(self, x: int) -> None:
+        self.st.append(x)
+        if not self.minst or x <= self.minst[-1]:
+            self.minst.append(x)
+        if not self.maxst or x >= self.maxst[-1]:
+            self.maxst.append(x)
+        self.sumv += x
+
+        self.hm_count[self.hm_key[x]].discard(x)
+        self.hm_key[x] += 1
+        self.hm_count[self.hm_key[x]].add(x)
+        self.maxc = max(self.maxc, self.hm_key[x])
+
+        bisect.insort(self.sorted_st, x)
+
+    def pop(self) -> None:
+        x = self.st.pop()
+        if x == self.minst[-1]:
+            self.minst.pop()
+        if x == self.maxst[-1]:
+            self.maxst.pop()
+        self.sumv -= x
+
+        self.hm_count[self.hm_key[x]].remove(x)
+        if not self.hm_count[self.maxc]:
+            self.maxc -= 1
+        self.hm_key[x] -= 1
+        self.hm_count[self.hm_key[x]].add(x)
+
+        self.sorted_st.pop(bisect.bisect(self.sorted_st, x) - 1)
+
+    def top(self) -> int:
+        return self.st[-1]
+
+    def get_min(self) -> int:
+        return self.minst[-1]
+
+    def get_max(self) -> int:
+        return self.maxst[-1]
+
+    def get_avg(self) -> float:
+        return self.sumv / len(self.st)
+
+    def get_mode(self) -> List[int]:
+        return list(self.hm_count[self.maxc])
+
+    def get_median(self) -> float:
+        n = len(self.sorted_st)
+        return (self.sorted_st[n // 2] + self.sorted_st[(n - 1) // 2]) / 2
 
 
 def game_of_life(board: List[List[int]]):

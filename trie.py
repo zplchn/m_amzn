@@ -108,6 +108,41 @@ class Solution:
                     dfs(i, j, board[i][j])
         return list(set(res)) # need to filter repeat words
 
+    def replaceWords(self, dict: List[str], sentence: str) -> str:
+        # 648 store the dict in a trie and check each word see if a prefix path exist, replace with shortest prefix
+        class TrieNode:
+            def __init__(self):
+                self.children = collections.defaultdict(TrieNode)
+                self.is_word = False
+
+        def build_trie():
+            root = TrieNode()
+
+            for w in dict:
+                node = root
+                for c in w:
+                    node = node.children[c]
+                node.is_word = True
+            return root
+
+        def word_prefix(w: str):
+            node = root
+            prefix = []
+            for c in w:
+                if c in node.children:
+                    prefix.append(c)
+                    node = node.children[c]
+                    if node.is_word:
+                        break
+            return ''.join(prefix)
+
+        root = build_trie()
+        return ' '.join(word_prefix(w) or w for w in sentence.split())
+
+
+
+
+
 
 
 

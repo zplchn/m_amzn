@@ -15,6 +15,8 @@ class LRUCache:
             self.pre = self.next = None
 
     def __init__(self, cap: int) -> None:
+        if cap <= 0:
+            raise ValueError
         self.hm = {}
         self.head = LRUCache.Node()
         self.tail = LRUCache.Node()
@@ -91,7 +93,6 @@ class LFUCache:
         self.minc = 1
         self.hm_key[key] = self.hm_count[self.minc][key] = LFUCache.Node(key, val, 1)
 
-
     def bump_node(self, node: Node) -> None:
         del self.hm_count[node.count][node.k]
         if not self.hm_count[self.minc]:
@@ -99,11 +100,21 @@ class LFUCache:
         node.count += 1
         self.hm_count[node.count][node.k] = node
 
+def maxProfit(self, prices: List[int]) -> int:
+    if not prices:
+        return 0
+    dp = [0] * len(prices)
+    lmin, lmax = prices[0], prices[-1]
+    res = 0
 
+    for i in range(1, len(prices)):
+        dp[i] = max(dp[i - 1], prices[i] - lmin)
+        lmin = min(lmin, prices[i])
 
-
-
-
+    for i in reversed(range(len(prices) - 1)):
+        res = max(res, dp[i] + max(0, lmax - prices[i]))
+        lmax = max(lmax, prices[i])
+    return res
 
 
 def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
@@ -137,6 +148,7 @@ def median(A, B):
         raise ValueError
 
     imin, imax, half_len = 0, m, (m + n + 1) / 2
+
     while imin <= imax:
         i = (imin + imax) / 2
         j = half_len - i

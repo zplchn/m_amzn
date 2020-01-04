@@ -27,3 +27,21 @@ class Solution:
             A[i], A[j] = A[j], A[i]
             i, j = i + 1, j - 1
         return A
+
+    def triangleNumber611(self, nums: List[int]) -> int:
+        # like 3sum. each time we set outer loop from large -> small, then two pointers on left. For making a
+        # triagle, need two edges sum > third edge.
+        if len(nums) < 3:
+            return 0
+        nums.sort()
+        res = 0
+        for i in reversed(range(2, len(nums))):
+            j, k = 0, i - 1
+            while j < k:
+                if nums[j] + nums[k] > nums[i]:
+                    res += k - j
+                    k -= 1
+                else:
+                    j += 1
+        return res
+
